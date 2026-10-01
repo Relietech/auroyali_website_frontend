@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-heading: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  html {
+    font-family: var(--font-body);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-body text-base md:text-lg font-light leading-relaxed text-earth-900 bg-earth-50;
+  }
+
+  h1 {
+    @apply font-heading text-4xl md:text-6xl font-semibold text-earth-900;
+  }
+
+  h2 {
+    @apply font-heading text-3xl md:text-4xl text-earth-900;
+  }
+
+  p {
+    @apply font-body text-base md:text-lg font-light leading-relaxed;
+  }
+}
+
+@layer components {
+  .h1-hero {
+    @apply font-heading text-4xl md:text-6xl font-semibold;
+  }
+
+  .h2-section {
+    @apply font-heading text-3xl md:text-4xl;
+  }
+
+  .body-text {
+    @apply font-body text-base md:text-lg font-light leading-relaxed;
+  }
+
+  .nav-link {
+    @apply font-body text-sm uppercase tracking-widest transition-colors duration-200;
+  }
+}
