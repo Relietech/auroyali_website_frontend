@@ -165,21 +165,21 @@ function RealisticVilla({ mode, wireframe }) {
         };
       case 'night':
         return {
-          wallBase: '#38261e',
-          limestone: '#685c52',
-          darkWood: '#241711',
-          lightWood: '#4d3021',
+          wallBase: '#4d372c',
+          limestone: '#7a6e64',
+          darkWood: '#362217',
+          lightWood: '#5a3b28',
           glass: '#38bdf8',
           water: '#0284c7',
           waterOpacity: 0.92,
           warmInterior: '#ffb703',
-          interiorIntensity: 3.5,
-          metal: '#1e293b',
-          grass: '#253320',
-          roof: '#18120f',
-          ambientLight: 0.45,
-          sunColor: '#60a5fa',
-          sunIntensity: 0.8,
+          interiorIntensity: 3.0,
+          metal: '#334155',
+          grass: '#2e3d2a',
+          roof: '#281f1a',
+          ambientLight: 0.85,
+          sunColor: '#93c5fd',
+          sunIntensity: 1.4,
           skyColor: '#1e1b4b'
         };
       case 'blueprint':
@@ -245,8 +245,8 @@ function RealisticVilla({ mode, wireframe }) {
         />
       </mesh>
 
-      <mesh position={[0.1, 0.01, 0.2]} receiveShadow>
-        <boxGeometry args={[6.6, 0.06, 5.6]} />
+      <mesh position={[0.1, 0.02, 0.2]} receiveShadow>
+        <boxGeometry args={[6.6, 0.08, 5.6]} />
         <meshStandardMaterial
           color={theme.limestone}
           map={!isWire ? textures.stoneTex : null}
@@ -255,8 +255,8 @@ function RealisticVilla({ mode, wireframe }) {
         />
       </mesh>
 
-      <mesh position={[-2.4, 0.02, 0.2]} receiveShadow>
-        <boxGeometry args={[1.2, 0.04, 5.0]} />
+      <mesh position={[-2.4, 0.065, 0.2]} receiveShadow>
+        <boxGeometry args={[1.15, 0.015, 5.0]} />
         <meshStandardMaterial
           color="#d1c7b7"
           roughness={0.95}
@@ -685,23 +685,24 @@ export function Hero3DCanvas({ className = "" }) {
         <ResponsiveCameraController />
 
         {/* Atmospheric Sky Lighting */}
-        <ambientLight intensity={mode === 'night' ? 0.45 : mode === 'sunset' ? 1.0 : 1.4} />
+        <ambientLight intensity={mode === 'night' ? 0.85 : mode === 'sunset' ? 1.0 : 1.4} />
         
-        {/* Optimized Sun Light Shadow Map (512x512 on mobile) */}
+        {/* Optimized Sun Light Shadow Map */}
         <directionalLight
           position={[8, 12, 7]}
-          intensity={mode === 'sunset' ? 2.4 : mode === 'night' ? 0.8 : 2.4}
-          color={mode === 'sunset' ? '#ffa366' : mode === 'night' ? '#93c5fd' : '#fffbeb'}
+          intensity={mode === 'sunset' ? 2.4 : mode === 'night' ? 1.4 : 2.4}
+          color={mode === 'sunset' ? '#ffa366' : mode === 'night' ? '#bfdbfe' : '#fffbeb'}
           castShadow
-          shadow-mapSize={[512, 512]}
-          shadow-bias={-0.0001}
+          shadow-mapSize={[1024, 1024]}
+          shadow-bias={-0.0003}
+          shadow-normalBias={0.04}
         />
         
         {/* Soft Secondary Bounce Fill Light */}
         <directionalLight
           position={[-6, 5, -5]}
-          intensity={mode === 'night' ? 0.3 : 0.6}
-          color={mode === 'sunset' ? '#b45309' : '#7a8b69'}
+          intensity={mode === 'night' ? 0.6 : 0.6}
+          color={mode === 'sunset' ? '#b45309' : mode === 'night' ? '#38bdf8' : '#7a8b69'}
         />
 
         {/* Architectural 3D Villa */}
@@ -712,15 +713,12 @@ export function Hero3DCanvas({ className = "" }) {
 
         {/* Soft Ground Contact Shadow */}
         <ContactShadows
-          position={[0, -0.45, 0]}
-          opacity={0.65}
+          position={[0, -0.32, 0]}
+          opacity={0.6}
           scale={9}
-          blur={1.8}
-          far={4}
+          blur={1.6}
+          far={3.5}
         />
-
-        {/* Subtle Golden Dust Floating Particles */}
-        <AtmosphericParticles count={30} mode={mode} />
 
         {/* Orbit Controls: Smooth slow auto-rotation until user touches */}
         <OrbitControls
