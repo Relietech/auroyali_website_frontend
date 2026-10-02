@@ -45,6 +45,6 @@ export const navLinks = [
       { name: "Bamboo Craft Workshop", path: "/workshops/bamboo", desc: "Joinery, Treatment & Tensile Shells" },
     ]
   },
-  { name: "Testimonials", path: "/testimonials" },
+
   { name: "Contact", path: "/contact" },
 ];
