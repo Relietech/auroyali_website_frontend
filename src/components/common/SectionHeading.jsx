@@ -15,10 +15,10 @@ export function SectionHeading({
   };
 
   return (
-    <div className={`flex flex-col max-w-3xl mb-12 md:mb-16 ${alignClasses[align]} ${className}`}>
+    <div className={`flex flex-col max-w-3xl mb-6 sm:mb-10 md:mb-16 ${alignClasses[align]} ${className}`}>
       {tag && (
         <span
-          className={`inline-block text-xs uppercase tracking-[0.25em] font-medium mb-3 ${
+          className={`inline-block text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.25em] font-semibold mb-2 sm:mb-3 ${
             light ? 'text-earth-300' : 'text-clay'
           }`}
         >
@@ -26,7 +26,7 @@ export function SectionHeading({
         </span>
       )}
       <h2
-        className={`h2-section tracking-tight leading-tight ${
+        className={`h2-section tracking-tight leading-[1.18] sm:leading-tight ${
           light ? 'text-earth-50' : 'text-earth-900'
         }`}
       >
@@ -34,7 +34,7 @@ export function SectionHeading({
       </h2>
       {subtitle && (
         <p
-          className={`body-text mt-4 font-light leading-relaxed ${
+          className={`body-text mt-3 sm:mt-4 font-light leading-relaxed ${
             light ? 'text-stone-300' : 'text-stone-600'
           }`}
         >

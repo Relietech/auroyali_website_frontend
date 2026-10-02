@@ -15,20 +15,13 @@ export function FeatureCards() {
   return (
     <section className="py-24 md:py-32 bg-earth-50 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
+        <div className="mb-16">
           <SectionHeading
             tag="Core Architectural Practices"
             title="Integrated craftsmanship from master planning to artisanal joinery."
             subtitle="Unlike standard design firms that outsource execution, our in-house Auroville studios handle design, raw material production, woodcraft, and metal fabrication under one roof."
-            className="mb-0"
+            className="mb-0 max-w-3xl"
           />
-          <Link
-            to="/services/architecture"
-            className="mt-6 md:mt-0 inline-flex items-center gap-2 text-clay font-medium uppercase tracking-wider text-xs hover:text-earth-900 transition-colors shrink-0"
-          >
-            <span>View All Detailed Disciplines</span>
-            <ArrowUpRight size={16} />
-          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

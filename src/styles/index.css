@@ -32,15 +32,15 @@
 
 @layer components {
   .h1-hero {
-    @apply font-heading text-4xl md:text-6xl font-semibold;
+    @apply font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold;
   }
 
   .h2-section {
-    @apply font-heading text-3xl md:text-4xl;
+    @apply font-heading text-2xl sm:text-3xl md:text-4xl;
   }
 
   .body-text {
-    @apply font-body text-base md:text-lg font-light leading-relaxed;
+    @apply font-body text-sm sm:text-base md:text-lg font-light leading-relaxed;
   }
 
   .nav-link {

@@ -13,12 +13,12 @@ export function Button({
   className = '',
   type = 'button'
 }) {
-  const baseStyles = "inline-flex items-center justify-center font-body uppercase tracking-wider rounded-full transition-all duration-300 font-medium group";
+  const baseStyles = "inline-flex items-center justify-center font-body uppercase tracking-wider rounded-full transition-all duration-300 font-medium whitespace-nowrap group";
   
   const sizeStyles = {
-    sm: "px-4 py-2 text-xs gap-1.5",
-    md: "px-6 py-3 text-xs md:text-sm gap-2",
-    lg: "px-8 py-4 text-sm md:text-base gap-2.5"
+    sm: "px-3 py-1.5 sm:px-4 sm:py-2 text-[10.5px] sm:text-xs gap-1.5",
+    md: "px-3.5 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 text-[11px] sm:text-xs md:text-sm gap-1.5 sm:gap-2",
+    lg: "px-4 py-2.5 sm:px-8 sm:py-4 text-xs sm:text-sm md:text-base gap-2 sm:gap-2.5"
   };
 
   const variantStyles = {

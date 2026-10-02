@@ -1,302 +1,633 @@
-import React, { useRef, useState, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
+import { Sun, Sunset, Moon, Layers } from 'lucide-react';
 
-// Realistic Modern Bioclimatic Earth Villa (Manual Rotation Only)
-function RealisticEcoVilla({ mode, wireframe }) {
-  const groupRef = useRef();
-  const poolRef = useRef();
+// ==========================================
+// PROCEDURAL ARCHITECTURAL TEXTURES GENERATOR
+// ==========================================
+function useProceduralTextures() {
+  return useMemo(() => {
+    // 1. Rammed Earth Layered Texture
+    const reCanvas = document.createElement('canvas');
+    reCanvas.width = 512;
+    reCanvas.height = 512;
+    const reCtx = reCanvas.getContext('2d');
+    if (reCtx) {
+      reCtx.fillStyle = '#b86b43';
+      reCtx.fillRect(0, 0, 512, 512);
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    if (poolRef.current) {
-      poolRef.current.material.opacity = 0.85 + Math.sin(t * 2.5) * 0.08;
+      // Stratified sediment layers
+      const bands = [
+        { y: 0, h: 45, col: '#a35732' },
+        { y: 45, h: 70, col: '#c67e54' },
+        { y: 115, h: 35, col: '#8d4522' },
+        { y: 150, h: 90, col: '#ba734a' },
+        { y: 240, h: 50, col: '#d48d63' },
+        { y: 290, h: 65, col: '#9c4f2b' },
+        { y: 355, h: 80, col: '#be774e' },
+        { y: 435, h: 77, col: '#8f4724' },
+      ];
+
+      bands.forEach(b => {
+        reCtx.fillStyle = b.col;
+        reCtx.fillRect(0, b.y, 512, b.h);
+      });
+
+      // Micro-texture grain
+      const imgData = reCtx.getImageData(0, 0, 512, 512);
+      const d = imgData.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const noise = (Math.random() - 0.5) * 26;
+        d[i] = Math.min(255, Math.max(0, d[i] + noise));
+        d[i + 1] = Math.min(255, Math.max(0, d[i + 1] + noise * 0.8));
+        d[i + 2] = Math.min(255, Math.max(0, d[i + 2] + noise * 0.6));
+      }
+      reCtx.putImageData(imgData, 0, 0);
     }
-  });
+    const rammedEarthTex = new THREE.CanvasTexture(reCanvas);
+    rammedEarthTex.wrapS = THREE.RepeatWrapping;
+    rammedEarthTex.wrapT = THREE.RepeatWrapping;
+    rammedEarthTex.repeat.set(1, 1);
+
+    // 2. Teak Wood Grain Texture
+    const woodCanvas = document.createElement('canvas');
+    woodCanvas.width = 256;
+    woodCanvas.height = 256;
+    const wCtx = woodCanvas.getContext('2d');
+    if (wCtx) {
+      wCtx.fillStyle = '#7a3e1d';
+      wCtx.fillRect(0, 0, 256, 256);
+      for (let i = 0; i < 256; i += 4) {
+        const shade = 100 + Math.sin(i * 0.1) * 35 + (Math.random() - 0.5) * 20;
+        wCtx.fillStyle = `rgb(${shade + 20}, ${shade * 0.55 + 10}, ${shade * 0.28})`;
+        wCtx.fillRect(0, i, 256, 4);
+      }
+    }
+    const woodTex = new THREE.CanvasTexture(woodCanvas);
+    woodTex.wrapS = THREE.RepeatWrapping;
+    woodTex.wrapT = THREE.RepeatWrapping;
+
+    // 3. Travertine Stone Tile Texture
+    const stoneCanvas = document.createElement('canvas');
+    stoneCanvas.width = 512;
+    stoneCanvas.height = 512;
+    const sCtx = stoneCanvas.getContext('2d');
+    if (sCtx) {
+      sCtx.fillStyle = '#ede5d8';
+      sCtx.fillRect(0, 0, 512, 512);
+
+      // Tile grid grooves
+      sCtx.strokeStyle = '#c8bcab';
+      sCtx.lineWidth = 3;
+      for (let x = 0; x <= 512; x += 128) {
+        sCtx.beginPath();
+        sCtx.moveTo(x, 0);
+        sCtx.lineTo(x, 512);
+        sCtx.stroke();
+      }
+      for (let y = 0; y <= 512; y += 128) {
+        sCtx.beginPath();
+        sCtx.moveTo(0, y);
+        sCtx.lineTo(512, y);
+        sCtx.stroke();
+      }
+
+      // Micro stone flecks
+      const sData = sCtx.getImageData(0, 0, 512, 512);
+      const sd = sData.data;
+      for (let i = 0; i < sd.length; i += 4) {
+        const noise = (Math.random() - 0.5) * 16;
+        sd[i] = Math.min(255, Math.max(0, sd[i] + noise));
+        sd[i + 1] = Math.min(255, Math.max(0, sd[i + 1] + noise * 0.95));
+        sd[i + 2] = Math.min(255, Math.max(0, sd[i + 2] + noise * 0.9));
+      }
+      sCtx.putImageData(sData, 0, 0);
+    }
+    const stoneTex = new THREE.CanvasTexture(stoneCanvas);
+    stoneTex.wrapS = THREE.RepeatWrapping;
+    stoneTex.wrapT = THREE.RepeatWrapping;
+    stoneTex.repeat.set(4, 4);
+
+    return { rammedEarthTex, woodTex, stoneTex };
+  }, []);
+}
+
+// ==========================================
+// RESPONSIVE CAMERA ADAPTER
+// ==========================================
+function ResponsiveCameraController() {
+  const { size, camera } = useThree();
+
+  useEffect(() => {
+    const isPortrait = size.width < 580 || size.width < size.height;
+    if (isPortrait) {
+      camera.position.set(0.3, 2.1, 9.4);
+      camera.fov = 42;
+    } else {
+      camera.position.set(0.35, 1.8, 7.8);
+      camera.fov = 36;
+    }
+    camera.updateProjectionMatrix();
+  }, [size.width, size.height, camera]);
+
+  return null;
+}
+
+// ==========================================
+// REALISTIC HIGH-END BIOCLIMATIC VILLA
+// ==========================================
+function RealisticVilla({ mode, wireframe }) {
+  const poolRef = useRef();
+  const textures = useProceduralTextures();
 
   const theme = useMemo(() => {
     switch (mode) {
       case 'sunset':
         return {
-          rammedEarth: '#a8502e',
-          csebDark: '#783218',
-          limestone: '#e2d3c1',
-          wood: '#683618',
-          glass: '#fb923c',
-          water: '#ea580c',
-          glow: '#fbbf24',
-          glowIntensity: 2.2,
-          deck: '#8a4b27',
-          steel: '#33241d'
+          wallBase: '#b3613b',
+          limestone: '#ebe1d3',
+          darkWood: '#5a301a',
+          lightWood: '#99562e',
+          glass: '#f1dcd0',
+          water: '#ba5829',
+          waterOpacity: 0.85,
+          warmInterior: '#ff9d42',
+          interiorIntensity: 1.8,
+          metal: '#281c16',
+          grass: '#5c6b45',
+          roof: '#281d18',
+          ambientLight: 1.1,
+          sunColor: '#ffa366',
+          sunIntensity: 2.2,
+          skyColor: '#fcd3b6'
         };
       case 'night':
         return {
-          rammedEarth: '#362822',
-          csebDark: '#231814',
-          limestone: '#5a514b',
-          wood: '#2b1b14',
+          wallBase: '#38261e',
+          limestone: '#685c52',
+          darkWood: '#241711',
+          lightWood: '#4d3021',
           glass: '#38bdf8',
           water: '#0284c7',
-          glow: '#f59e0b',
-          glowIntensity: 3.5,
-          deck: '#2d1f18',
-          steel: '#1e293b'
+          waterOpacity: 0.92,
+          warmInterior: '#ffb703',
+          interiorIntensity: 3.5,
+          metal: '#1e293b',
+          grass: '#253320',
+          roof: '#18120f',
+          ambientLight: 0.45,
+          sunColor: '#60a5fa',
+          sunIntensity: 0.8,
+          skyColor: '#1e1b4b'
         };
-      default: // day
+      case 'blueprint':
         return {
-          rammedEarth: '#c47d4e',
-          csebDark: '#9e5a2e',
-          limestone: '#f3ece2',
-          wood: '#8c502c',
-          glass: '#bae6fd',
+          wallBase: '#0284c7',
+          limestone: '#0369a1',
+          darkWood: '#075985',
+          lightWood: '#0c4a6e',
+          glass: '#38bdf8',
+          water: '#0284c7',
+          waterOpacity: 0.5,
+          warmInterior: '#38bdf8',
+          interiorIntensity: 1.5,
+          metal: '#38bdf8',
+          grass: '#0f172a',
+          roof: '#0369a1',
+          ambientLight: 1.2,
+          sunColor: '#38bdf8',
+          sunIntensity: 1.5,
+          skyColor: '#0284c7'
+        };
+      default: // Day
+        return {
+          wallBase: '#c67347',
+          limestone: '#f8f4ec',
+          darkWood: '#6e3819',
+          lightWood: '#b86b3b',
+          glass: '#e0f2fe',
           water: '#38bdf8',
-          glow: '#fef08a',
-          glowIntensity: 0.8,
-          deck: '#b47348',
-          steel: '#475569'
+          waterOpacity: 0.82,
+          warmInterior: '#fef08a',
+          interiorIntensity: 0.9,
+          metal: '#334155',
+          grass: '#6e8552',
+          roof: '#2b211b',
+          ambientLight: 1.4,
+          sunColor: '#fffbeb',
+          sunIntensity: 2.2,
+          skyColor: '#f1f5f9'
         };
     }
   }, [mode]);
 
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (poolRef.current && mode !== 'blueprint') {
+      poolRef.current.material.opacity = theme.waterOpacity + Math.sin(t * 2.0) * 0.04;
+      poolRef.current.position.y = 0.055 + Math.sin(t * 1.5) * 0.002;
+    }
+  });
+
+  const isWire = mode === 'blueprint' || wireframe;
+
   return (
-    <group ref={groupRef} position={[0, -0.35, 0]} scale={0.95}>
-      
-      {/* 1. Natural Stone Terrace Platform & Grass Foundation */}
-      <mesh position={[0, -0.12, 0]} receiveShadow>
-        <boxGeometry args={[6.8, 0.24, 5.8]} />
-        <meshStandardMaterial color="#6a775b" roughness={0.9} />
+    <group position={[0, -0.32, 0]} scale={0.78}>
+      {/* 1. GROUND FOUNDATION & LANDSCAPE PLINTH */}
+      <mesh position={[0, -0.16, 0]} receiveShadow>
+        <boxGeometry args={[7.4, 0.28, 6.4]} />
+        <meshStandardMaterial
+          color={theme.grass}
+          roughness={0.95}
+          wireframe={isWire}
+        />
       </mesh>
 
-      {/* Travertine Stone Paved Patio */}
-      <mesh position={[0.2, 0.01, 0.3]} receiveShadow>
-        <boxGeometry args={[6.2, 0.04, 5.2]} />
-        <meshStandardMaterial color={theme.limestone} roughness={0.7} />
+      <mesh position={[0.1, 0.01, 0.2]} receiveShadow>
+        <boxGeometry args={[6.6, 0.06, 5.6]} />
+        <meshStandardMaterial
+          color={theme.limestone}
+          map={!isWire ? textures.stoneTex : null}
+          roughness={0.65}
+          wireframe={isWire}
+        />
       </mesh>
 
-      {/* 2. Central Infinity Reflecting Pool */}
-      <group position={[1.4, 0.04, 1.4]}>
-        {/* Pool Coping Edge */}
-        <mesh receiveShadow>
-          <boxGeometry args={[2.6, 0.08, 1.6]} />
-          <meshStandardMaterial color="#332c27" roughness={0.8} />
+      <mesh position={[-2.4, 0.02, 0.2]} receiveShadow>
+        <boxGeometry args={[1.2, 0.04, 5.0]} />
+        <meshStandardMaterial
+          color="#d1c7b7"
+          roughness={0.95}
+          wireframe={isWire}
+        />
+      </mesh>
+
+      {/* 2. INFINITY REFLECTING POOL */}
+      <group position={[1.5, 0, 1.4]}>
+        <mesh position={[0, 0.01, 0]} receiveShadow>
+          <boxGeometry args={[2.8, 0.12, 1.9]} />
+          <meshStandardMaterial color="#1c1917" roughness={0.8} wireframe={isWire} />
         </mesh>
-        {/* Water Surface with Rippling Caustics */}
-        <mesh ref={poolRef} position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[2.4, 1.4]} />
+
+        <mesh position={[0, 0.01, 0]}>
+          <boxGeometry args={[2.56, 0.02, 1.66]} />
+          <meshStandardMaterial color={mode === 'sunset' ? '#783518' : '#0284c7'} roughness={0.3} wireframe={isWire} />
+        </mesh>
+
+        <mesh
+          ref={poolRef}
+          position={[0, 0.055, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          <planeGeometry args={[2.56, 1.66]} />
           <meshStandardMaterial
             color={theme.water}
+            roughness={0.05}
+            metalness={0.85}
+            transparent
+            opacity={theme.waterOpacity}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        {[-0.65, 0, 0.65].map((x, i) => (
+          <mesh key={i} position={[x, 0.065, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.42, 0.04, 0.42]} />
+            <meshStandardMaterial
+              color={theme.limestone}
+              roughness={0.6}
+              wireframe={isWire}
+            />
+          </mesh>
+        ))}
+
+        {mode === 'night' && (
+          <pointLight position={[0, 0.1, 0]} color="#38bdf8" intensity={1.4} distance={3} />
+        )}
+      </group>
+
+      {/* 3. GROUND FLOOR MAIN PAVILION */}
+      <group position={[-0.8, 0.8, 0]}>
+        <mesh position={[-1.3, 0, 0]} castShadow receiveShadow>
+          <boxGeometry args={[0.45, 1.5, 4.2]} />
+          <meshStandardMaterial
+            color={theme.wallBase}
+            map={!isWire ? textures.rammedEarthTex : null}
+            roughness={0.88}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        <mesh position={[0.4, 0, -1.95]} castShadow receiveShadow>
+          <boxGeometry args={[2.9, 1.5, 0.3]} />
+          <meshStandardMaterial
+            color={theme.wallBase}
+            map={!isWire ? textures.rammedEarthTex : null}
+            roughness={0.9}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        <mesh position={[0.5, 0, 0.7]}>
+          <boxGeometry args={[2.7, 1.46, 0.04]} />
+          <meshStandardMaterial
+            color={theme.glass}
+            transparent
+            opacity={mode === 'blueprint' ? 0.3 : 0.35}
+            roughness={0.08}
+            metalness={0.15}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        <mesh position={[1.85, 0, -0.5]}>
+          <boxGeometry args={[0.04, 1.46, 2.7]} />
+          <meshStandardMaterial
+            color={theme.glass}
+            transparent
+            opacity={mode === 'blueprint' ? 0.3 : 0.35}
+            roughness={0.08}
+            metalness={0.15}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        {[-0.8, -0.1, 0.6, 1.3, 1.8].map((x, i) => (
+          <mesh key={i} position={[x, 0, 0.72]} castShadow>
+            <boxGeometry args={[0.04, 1.48, 0.06]} />
+            <meshStandardMaterial color={theme.metal} roughness={0.3} metalness={0.9} wireframe={isWire} />
+          </mesh>
+        ))}
+
+        <mesh position={[0.35, 0, -0.6]}>
+          <boxGeometry args={[2.3, 1.4, 2.4]} />
+          <meshStandardMaterial
+            color="#231a14"
+            emissive={theme.warmInterior}
+            emissiveIntensity={mode === 'night' ? 0.35 : mode === 'sunset' ? 0.18 : 0.05}
+            roughness={0.7}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        <mesh position={[0.2, -0.45, -0.4]} castShadow>
+          <boxGeometry args={[1.3, 0.28, 0.65]} />
+          <meshStandardMaterial color="#ded7cb" roughness={0.8} wireframe={isWire} />
+        </mesh>
+        <mesh position={[0.2, -0.52, 0.25]} castShadow>
+          <boxGeometry args={[0.8, 0.14, 0.4]} />
+          <meshStandardMaterial
+            color={theme.darkWood}
+            map={!isWire ? textures.woodTex : null}
+            roughness={0.6}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        <group position={[0.3, 0.4, -0.4]}>
+          <mesh>
+            <cylinderGeometry args={[0.01, 0.01, 0.5, 8]} />
+            <meshStandardMaterial color="#d4af37" metalness={0.9} />
+          </mesh>
+          <mesh position={[0, -0.28, 0]}>
+            <sphereGeometry args={[0.08, 16, 16]} />
+            <meshStandardMaterial
+              color="#fff"
+              emissive={theme.warmInterior}
+              emissiveIntensity={theme.interiorIntensity}
+            />
+          </mesh>
+          <pointLight color="#ffaa44" intensity={theme.interiorIntensity * 0.9} distance={3.2} />
+        </group>
+      </group>
+
+      {/* 4. CANTILEVERED UPPER SUITE */}
+      <group position={[0.4, 2.05, -0.3]}>
+        <mesh position={[-0.1, -0.09, 0.1]} castShadow receiveShadow>
+          <boxGeometry args={[4.0, 0.18, 3.6]} />
+          <meshStandardMaterial
+            color={theme.limestone}
+            roughness={0.7}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        <mesh position={[-0.3, 0.62, -0.1]} castShadow receiveShadow>
+          <boxGeometry args={[3.2, 1.24, 2.9]} />
+          <meshStandardMaterial
+            color={theme.limestone}
+            roughness={0.75}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        <mesh position={[-0.3, 0.62, 1.38]}>
+          <boxGeometry args={[2.9, 1.05, 0.04]} />
+          <meshStandardMaterial
+            color={theme.glass}
+            transparent
+            opacity={0.35}
+            roughness={0.05}
+            wireframe={isWire}
+          />
+        </mesh>
+
+        {[-1.6, -1.3, -1.0, -0.7, 0.4, 0.7, 1.0].map((x, i) => (
+          <mesh key={i} position={[x, 0.62, 1.44]} castShadow>
+            <boxGeometry args={[0.06, 1.2, 0.14]} />
+            <meshStandardMaterial
+              color={theme.darkWood}
+              map={!isWire ? textures.woodTex : null}
+              roughness={0.65}
+              wireframe={isWire}
+            />
+          </mesh>
+        ))}
+
+        <mesh position={[1.4, 0.32, 0.7]}>
+          <boxGeometry args={[0.03, 0.65, 2.2]} />
+          <meshStandardMaterial
+            color={theme.glass}
+            transparent
+            opacity={0.4}
             roughness={0.1}
-            metalness={0.8}
-            transparent
-            opacity={0.88}
+            wireframe={isWire}
           />
         </mesh>
-        {/* Submerged Stepping Stones */}
-        {[-0.6, 0, 0.6].map((x, i) => (
-          <mesh key={i} position={[x, 0.045, 0]}>
-            <boxGeometry args={[0.4, 0.03, 0.4]} />
-            <meshStandardMaterial color={theme.limestone} roughness={0.6} />
-          </mesh>
-        ))}
-      </group>
 
-      {/* 3. Main Ground Floor Villa Wing (Rammed Earth & Floor-to-Ceiling Glass) */}
-      <group position={[-0.9, 0.75, 0]}>
-        {/* Thick Rammed Earth Spine Wall */}
-        <mesh position={[-1.2, 0, 0]} castShadow receiveShadow>
-          <boxGeometry args={[0.4, 1.4, 3.8]} />
-          <meshStandardMaterial color={theme.rammedEarth} roughness={0.92} />
-        </mesh>
-
-        {/* Back Solid Earth Wall */}
-        <mesh position={[0.3, 0, -1.8]} castShadow receiveShadow>
-          <boxGeometry args={[2.6, 1.4, 0.3]} />
-          <meshStandardMaterial color={theme.csebDark} roughness={0.9} />
-        </mesh>
-
-        {/* Ground Floor Living Space Transparent Glass Wall */}
-        <mesh position={[0.4, 0, 0.6]}>
-          <boxGeometry args={[2.4, 1.35, 0.04]} />
+        <mesh position={[-0.1, 1.32, 0.2]} castShadow receiveShadow>
+          <boxGeometry args={[4.6, 0.14, 4.0]} />
           <meshStandardMaterial
-            color={theme.glass}
-            transparent
-            opacity={0.35}
-            roughness={0.05}
-            metalness={0.2}
+            color={theme.roof}
+            roughness={0.7}
+            wireframe={isWire}
           />
         </mesh>
 
-        {/* Black Slimline Aluminum Window Mullions */}
-        {[-0.6, 0.2, 1.0, 1.5].map((x, i) => (
-          <mesh key={i} position={[x, 0, 0.61]}>
-            <boxGeometry args={[0.04, 1.38, 0.06]} />
-            <meshStandardMaterial color={theme.steel} metalness={0.85} roughness={0.3} />
-          </mesh>
-        ))}
-
-        {/* Interior Illuminated Living Core */}
-        <mesh position={[0.3, 0, -0.2]}>
-          <boxGeometry args={[2.0, 1.2, 2.2]} />
+        <mesh position={[-0.1, 1.24, 1.5]}>
+          <boxGeometry args={[3.8, 0.02, 0.04]} />
           <meshStandardMaterial
-            color="#221b16"
-            emissive={theme.glow}
-            emissiveIntensity={mode === 'night' ? 0.35 : mode === 'sunset' ? 0.2 : 0.05}
-            roughness={0.8}
+            color={theme.warmInterior}
+            emissive={theme.warmInterior}
+            emissiveIntensity={theme.interiorIntensity * 0.6}
           />
-        </mesh>
-
-        {/* Interior Furniture: Minimalist Sofa & Coffee Table */}
-        <mesh position={[0.1, -0.4, -0.3]} castShadow>
-          <boxGeometry args={[1.1, 0.25, 0.6]} />
-          <meshStandardMaterial color="#ded7cd" roughness={0.8} />
-        </mesh>
-        <mesh position={[0.1, -0.45, 0.2]} castShadow>
-          <boxGeometry args={[0.6, 0.15, 0.35]} />
-          <meshStandardMaterial color={theme.wood} roughness={0.7} />
         </mesh>
       </group>
 
-      {/* 4. Cantilevered Upper Floor (Master Suite with Timber Louvers) */}
-      <group position={[0.3, 1.95, -0.4]}>
-        {/* Cantilevering Slab Floor */}
-        <mesh position={[0, -0.08, 0]} castShadow receiveShadow>
-          <boxGeometry args={[3.6, 0.16, 3.2]} />
-          <meshStandardMaterial color={theme.limestone} roughness={0.7} />
-        </mesh>
-
-        {/* Upper Master Bedroom Enclosure */}
-        <mesh position={[-0.2, 0.6, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2.8, 1.2, 2.6]} />
-          <meshStandardMaterial color={theme.limestone} roughness={0.8} />
-        </mesh>
-
-        {/* Upper Floor Deep Panorama Glass Window */}
-        <mesh position={[-0.2, 0.6, 1.32]}>
-          <boxGeometry args={[2.6, 1.0, 0.04]} />
-          <meshStandardMaterial
-            color={theme.glass}
-            transparent
-            opacity={0.35}
-            roughness={0.05}
-          />
-        </mesh>
-
-        {/* Vertical Teak Wood Shading Louvers (Jali screen) */}
-        {[-1.3, -1.0, -0.7, 0.5, 0.8, 1.0].map((x, i) => (
-          <mesh key={i} position={[x, 0.6, 1.36]} castShadow>
-            <boxGeometry args={[0.06, 1.15, 0.12]} />
-            <meshStandardMaterial color={theme.wood} roughness={0.75} />
-          </mesh>
-        ))}
-
-        {/* Upper Overhanging Roof with Recessed LED Uplighting */}
-        <mesh position={[-0.1, 1.26, 0.1]} castShadow receiveShadow>
-          <boxGeometry args={[4.2, 0.12, 3.6]} />
-          <meshStandardMaterial color="#2d221c" roughness={0.8} />
-        </mesh>
-      </group>
-
-      {/* 5. Outdoor Teak Wood Pergola & Verandah Columns */}
-      <group position={[-0.6, 1.3, 1.6]}>
-        {/* Slender Structural Steel Support Columns */}
+      {/* 5. TEAK TIMBER PERGOLA */}
+      <group position={[-0.7, 1.4, 1.7]}>
         {[
-          [-1.2, 0.4],
-          [0.8, 0.4]
+          [-1.3, 0.5],
+          [0.9, 0.5],
         ].map(([x, z], i) => (
-          <mesh key={i} position={[x, -0.6, z]} castShadow>
-            <cylinderGeometry args={[0.035, 0.035, 1.4, 16]} />
-            <meshStandardMaterial color={theme.steel} metalness={0.9} roughness={0.2} />
+          <mesh key={i} position={[x, -0.65, z]} castShadow>
+            <cylinderGeometry args={[0.032, 0.032, 1.5, 16]} />
+            <meshStandardMaterial
+              color={theme.metal}
+              metalness={0.92}
+              roughness={0.25}
+              wireframe={isWire}
+            />
           </mesh>
         ))}
 
-        {/* Floating Horizontal Wood Louver Slats */}
-        {[-0.6, -0.3, 0, 0.3, 0.6].map((z, i) => (
+        {[-0.7, -0.4, -0.1, 0.2, 0.5].map((z, i) => (
           <mesh key={i} position={[-0.2, 0.1, z]} castShadow>
-            <boxGeometry args={[2.4, 0.04, 0.08]} />
-            <meshStandardMaterial color={theme.wood} roughness={0.7} />
+            <boxGeometry args={[2.6, 0.045, 0.09]} />
+            <meshStandardMaterial
+              color={theme.darkWood}
+              map={!isWire ? textures.woodTex : null}
+              roughness={0.65}
+              wireframe={isWire}
+            />
           </mesh>
         ))}
       </group>
 
-      {/* 6. Sunken Firepit / Courtyard Lounge Seating */}
-      <group position={[-1.6, 0.1, 1.4]}>
+      {/* 6. SUNKEN COURTYARD & FIRE BOWL */}
+      <group position={[-1.7, 0.12, 1.5]}>
         <mesh receiveShadow>
-          <boxGeometry args={[1.2, 0.18, 1.2]} />
-          <meshStandardMaterial color={theme.deck} roughness={0.8} />
-        </mesh>
-        <mesh position={[0, 0.14, 0]}>
-          <cylinderGeometry args={[0.25, 0.25, 0.08, 16]} />
-          <meshStandardMaterial color="#2b2622" roughness={0.9} />
-        </mesh>
-        {/* Firepit Warm Amber Core */}
-        <mesh position={[0, 0.19, 0]}>
-          <sphereGeometry args={[0.1, 12, 12]} />
+          <boxGeometry args={[1.4, 0.2, 1.4]} />
           <meshStandardMaterial
-            color={theme.glow}
-            emissive={theme.glow}
-            emissiveIntensity={theme.glowIntensity}
+            color={theme.lightWood}
+            map={!isWire ? textures.woodTex : null}
+            roughness={0.7}
+            wireframe={isWire}
           />
         </mesh>
+
+        <mesh position={[0, 0.15, 0]} castShadow>
+          <cylinderGeometry args={[0.28, 0.24, 0.1, 24]} />
+          <meshStandardMaterial color="#262220" roughness={0.9} wireframe={isWire} />
+        </mesh>
+
+        <mesh position={[0, 0.21, 0]}>
+          <sphereGeometry args={[0.11, 16, 16]} />
+          <meshStandardMaterial
+            color="#e65100"
+            emissive="#e65100"
+            emissiveIntensity={mode === 'night' ? 2.5 : mode === 'sunset' ? 1.4 : 0.6}
+          />
+        </mesh>
+        {mode !== 'day' && mode !== 'blueprint' && (
+          <pointLight position={[0, 0.35, 0]} color="#ea580c" intensity={1.2} distance={2.2} />
+        )}
       </group>
 
-      {/* 7. Realistic Biophilic Landscaping (Tropical Palms & Architectural Planters) */}
-      <group position={[2.4, 0, -1.8]}>
-        <mesh position={[0, 1.1, 0]} castShadow>
-          <cylinderGeometry args={[0.08, 0.13, 2.2, 12]} />
-          <meshStandardMaterial color="#503827" roughness={0.9} />
+      {/* 7. SCULPTURAL LANDSCAPING */}
+      <group position={[2.6, 0, -1.9]}>
+        <mesh position={[0, 1.0, 0]} castShadow>
+          <cylinderGeometry args={[0.07, 0.14, 2.0, 12]} />
+          <meshStandardMaterial color="#4a3728" roughness={0.9} wireframe={isWire} />
         </mesh>
-        {[0, Math.PI / 3, (2 * Math.PI) / 3, Math.PI, (4 * Math.PI) / 3, (5 * Math.PI) / 3].map((rot, i) => (
-          <mesh key={i} position={[0, 2.2, 0]} rotation={[Math.PI / 3.5, rot, 0]} castShadow>
-            <boxGeometry args={[0.35, 0.02, 1.3]} />
-            <meshStandardMaterial color="#446132" roughness={0.7} side={THREE.DoubleSide} />
+        <mesh position={[0.2, 1.8, 0.1]} rotation={[0, 0, -0.3]} castShadow>
+          <cylinderGeometry args={[0.05, 0.07, 0.9, 10]} />
+          <meshStandardMaterial color="#4a3728" roughness={0.9} wireframe={isWire} />
+        </mesh>
+        {[
+          [-0.1, 2.2, -0.1, 0.55],
+          [0.35, 2.35, 0.2, 0.48],
+          [-0.3, 2.0, 0.3, 0.42],
+        ].map(([x, y, z, r], i) => (
+          <mesh key={i} position={[x, y, z]} castShadow>
+            <sphereGeometry args={[r, 16, 16]} />
+            <meshStandardMaterial
+              color={theme.grass}
+              roughness={0.8}
+              wireframe={isWire}
+            />
           </mesh>
         ))}
       </group>
 
-      {/* Architectural Planters with Shrubs */}
       {[
-        [-2.4, 0.2, -0.6],
-        [2.6, 0.15, 0.8]
-      ].map(([x, y, z], i) => (
-        <group key={i} position={[x, y, z]}>
+        { pos: [-2.6, 0.22, -0.8], size: [0.6, 0.4, 1.4] },
+        { pos: [2.8, 0.18, 0.6], size: [0.5, 0.35, 1.1] }
+      ].map((p, idx) => (
+        <group key={idx} position={p.pos}>
           <mesh castShadow receiveShadow>
-            <boxGeometry args={[0.5, 0.35, 1.2]} />
-            <meshStandardMaterial color={theme.csebDark} roughness={0.9} />
+            <boxGeometry args={p.size} />
+            <meshStandardMaterial
+              color={theme.wallBase}
+              roughness={0.9}
+              wireframe={isWire}
+            />
           </mesh>
-          <mesh position={[0, 0.25, 0]} castShadow>
-            <sphereGeometry args={[0.3, 12, 12]} />
-            <meshStandardMaterial color="#4a6b35" roughness={0.8} />
+          <mesh position={[0, p.size[1] / 2 + 0.2, 0]} castShadow>
+            <sphereGeometry args={[0.28, 14, 14]} />
+            <meshStandardMaterial color="#3f5e28" roughness={0.85} wireframe={isWire} />
           </mesh>
         </group>
       ))}
 
-      {/* Night Atmosphere Glowing Wall Sconces */}
-      {mode !== 'day' && (
-        <pointLight
-          position={[0.3, 1.8, 1.4]}
-          intensity={theme.glowIntensity * 1.5}
-          distance={4}
-          color="#ffb703"
-        />
-      )}
+      {[
+        [-0.8, 0.14, 2.6],
+        [0.4, 0.14, 2.6],
+        [1.6, 0.14, 2.6]
+      ].map((pos, i) => (
+        <group key={i} position={pos}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.03, 0.03, 0.28, 12]} />
+            <meshStandardMaterial color={theme.metal} metalness={0.9} roughness={0.3} />
+          </mesh>
+          <mesh position={[0, 0.1, 0]}>
+            <cylinderGeometry args={[0.032, 0.032, 0.06, 12]} />
+            <meshStandardMaterial
+              color="#fff"
+              emissive={theme.warmInterior}
+              emissiveIntensity={mode === 'night' ? 2.5 : 0.6}
+            />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
 
-// Atmospheric Spatially Floating Sunlight / Golden Dust
-function GoldenDustParticles({ count = 35, mode }) {
+// ==========================================
+// FLOATING ATMOSPHERIC LIGHT DUST PARTICLES
+// ==========================================
+function AtmosphericParticles({ count = 30, mode }) {
   const points = useRef();
-  const color = mode === 'sunset' ? '#ffedd5' : mode === 'night' ? '#93c5fd' : '#fef08a';
+  const color = mode === 'sunset' ? '#fed7aa' : mode === 'night' ? '#7dd3fc' : '#fef08a';
 
   const [positions] = useState(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 8;
-      pos[i * 3 + 1] = Math.random() * 4 - 0.2;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 8;
+      pos[i * 3] = (Math.random() - 0.5) * 8.5;
+      pos[i * 3 + 1] = Math.random() * 4.2 - 0.2;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 8.5;
     }
     return pos;
+  });
+
+  useFrame((state) => {
+    if (points.current) {
+      const t = state.clock.getElapsedTime() * 0.15;
+      points.current.rotation.y = t * 0.2;
+    }
   });
 
   return (
@@ -313,100 +644,179 @@ function GoldenDustParticles({ count = 35, mode }) {
         size={0.06}
         color={color}
         transparent
-        opacity={0.65}
+        opacity={mode === 'blueprint' ? 0.2 : 0.6}
         sizeAttenuation
       />
     </points>
   );
 }
 
+// ==========================================
+// MAIN HERO 3D CANVAS COMPONENT
+// ==========================================
 export function Hero3DCanvas({ className = "" }) {
-  const [mode, setMode] = useState('day');
+  const [mode, setMode] = useState('sunset');
   const [wireframe, setWireframe] = useState(false);
+  const [autoRotate, setAutoRotate] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const handleStartInteraction = () => {
+    if (autoRotate) setAutoRotate(false);
+    if (!hasInteracted) setHasInteracted(true);
+  };
 
   return (
-    <div className={`relative w-full h-[480px] md:h-[540px] lg:h-[580px] rounded-3xl overflow-hidden bg-gradient-to-br from-earth-100/90 via-earth-50/60 to-earth-100/80 border border-earth-200/90 shadow-2xl ${className}`}>
+    <div
+      className={`relative w-full max-w-full h-[440px] sm:h-[480px] md:h-[540px] lg:h-[580px] max-h-[70vh] min-h-[380px] rounded-3xl overflow-hidden bg-gradient-to-br from-earth-100/90 via-earth-50/70 to-earth-100/90 border border-earth-300/80 shadow-[0_20px_50px_rgba(46,31,20,0.14)] box-border ${className}`}
+      style={{ touchAction: 'pan-y' }}
+      onPointerDown={handleStartInteraction}
+    >
       
-      {/* 3D Canvas with Manual Drag Controls Only (No Auto-Rotation) */}
+      {/* 3D Canvas with dpr={[1, 1.5]} for smooth 60fps mobile GPU rendering */}
       <Canvas
         shadows
-        camera={{ position: [5.2, 3.4, 5.2], fov: 38 }}
+        dpr={[1, 1.5]}
+        camera={{ position: [0.3, 2.0, 8.2], fov: 38 }}
         className="cursor-grab active:cursor-grabbing w-full h-full"
+        style={{ touchAction: 'pan-y' }}
         gl={{ antialias: true, powerPreference: 'high-performance' }}
       >
-        <ambientLight intensity={mode === 'night' ? 0.35 : mode === 'sunset' ? 0.85 : 1.3} />
+        {/* Dynamic camera zoom and framing */}
+        <ResponsiveCameraController />
+
+        {/* Atmospheric Sky Lighting */}
+        <ambientLight intensity={mode === 'night' ? 0.45 : mode === 'sunset' ? 1.0 : 1.4} />
         
-        {/* Sun Key Light */}
+        {/* Optimized Sun Light Shadow Map (512x512 on mobile) */}
         <directionalLight
-          position={[7, 10, 6]}
-          intensity={mode === 'sunset' ? 3.0 : 2.0}
-          color={mode === 'sunset' ? '#ff9a52' : mode === 'night' ? '#7dd3fc' : '#fffbeb'}
+          position={[8, 12, 7]}
+          intensity={mode === 'sunset' ? 2.4 : mode === 'night' ? 0.8 : 2.4}
+          color={mode === 'sunset' ? '#ffa366' : mode === 'night' ? '#93c5fd' : '#fffbeb'}
           castShadow
-          shadow-mapSize={[1024, 1024]}
+          shadow-mapSize={[512, 512]}
+          shadow-bias={-0.0001}
         />
         
+        {/* Soft Secondary Bounce Fill Light */}
         <directionalLight
-          position={[-5, 4, -4]}
-          intensity={0.6}
-          color="#7a8b69"
+          position={[-6, 5, -5]}
+          intensity={mode === 'night' ? 0.3 : 0.6}
+          color={mode === 'sunset' ? '#b45309' : '#7a8b69'}
         />
 
-        <RealisticEcoVilla mode={mode} wireframe={wireframe} />
+        {/* Architectural 3D Villa */}
+        <RealisticVilla
+          mode={mode}
+          wireframe={wireframe}
+        />
 
-        <GoldenDustParticles count={35} mode={mode} />
+        {/* Soft Ground Contact Shadow */}
+        <ContactShadows
+          position={[0, -0.45, 0]}
+          opacity={0.65}
+          scale={9}
+          blur={1.8}
+          far={4}
+        />
 
-        {/* Orbit Controls: 100% Manual User Control */}
+        {/* Subtle Golden Dust Floating Particles */}
+        <AtmosphericParticles count={30} mode={mode} />
+
+        {/* Orbit Controls: Smooth slow auto-rotation until user touches */}
         <OrbitControls
           enableZoom={false}
           enablePan={false}
           enableDamping={true}
-          dampingFactor={0.08}
-          target={[0, 0.6, 0]}
-          minPolarAngle={Math.PI / 4.8}
+          dampingFactor={0.07}
+          target={[0, 0.75, 0]}
+          minPolarAngle={Math.PI / 5.2}
           maxPolarAngle={Math.PI / 2.18}
-          autoRotate={false}
+          autoRotate={autoRotate}
+          autoRotateSpeed={0.8}
+          onStart={handleStartInteraction}
         />
       </Canvas>
 
-      {/* Floating Mode Switcher */}
-      <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-md p-1.5 rounded-full border border-earth-200 shadow-md z-10 text-xs">
+      {/* Floating Mode Switcher (Positioned at bottom on mobile for thumb reach, top on desktop) */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 sm:bottom-auto sm:left-auto sm:top-4 sm:right-4 sm:translate-x-0 flex items-center gap-1 bg-white/95 backdrop-blur-xl p-1.5 rounded-full border border-earth-200/90 shadow-lg z-20 text-xs">
         <button
-          onClick={() => setMode('day')}
-          className={`px-3 py-1 rounded-full transition-all font-medium ${mode === 'day' ? 'bg-earth-900 text-white shadow-sm' : 'text-earth-900 hover:text-clay'}`}
-          title="Daylight Solar View"
+          onClick={() => { setMode('day'); setWireframe(false); }}
+          className={`flex items-center justify-center gap-1.5 px-3.5 h-11 min-h-[44px] rounded-full transition-all font-medium duration-200 ${
+            mode === 'day' && !wireframe
+              ? 'bg-earth-900 text-white shadow-sm' 
+              : 'text-earth-800 hover:text-clay hover:bg-earth-100/60'
+          }`}
+          title="Daylight Solar Mode"
         >
-          Day
+          <Sun size={14} className="shrink-0" />
+          <span className={mode === 'day' ? 'inline' : 'hidden sm:inline'}>Day</span>
         </button>
+
         <button
-          onClick={() => setMode('sunset')}
-          className={`px-3 py-1 rounded-full transition-all font-medium ${mode === 'sunset' ? 'bg-clay text-white shadow-sm' : 'text-earth-900 hover:text-clay'}`}
-          title="Golden Hour Bioclimatic Sun"
+          onClick={() => { setMode('sunset'); setWireframe(false); }}
+          className={`flex items-center justify-center gap-1.5 px-3.5 h-11 min-h-[44px] rounded-full transition-all font-medium duration-200 ${
+            mode === 'sunset' && !wireframe
+              ? 'bg-clay text-white shadow-sm' 
+              : 'text-earth-800 hover:text-clay hover:bg-earth-100/60'
+          }`}
+          title="Golden Hour Sunset Mode"
         >
-          Sunset
+          <Sunset size={14} className="shrink-0" />
+          <span className={mode === 'sunset' ? 'inline' : 'hidden sm:inline'}>Sunset</span>
         </button>
+
         <button
-          onClick={() => setMode('night')}
-          className={`px-3 py-1 rounded-full transition-all font-medium ${mode === 'night' ? 'bg-stone-800 text-white shadow-sm' : 'text-earth-900 hover:text-clay'}`}
-          title="Night Thermal Glow"
+          onClick={() => { setMode('night'); setWireframe(false); }}
+          className={`flex items-center justify-center gap-1.5 px-3.5 h-11 min-h-[44px] rounded-full transition-all font-medium duration-200 ${
+            mode === 'night' && !wireframe
+              ? 'bg-stone-900 text-amber-300 shadow-sm' 
+              : 'text-earth-800 hover:text-clay hover:bg-earth-100/60'
+          }`}
+          title="Night Thermal Glow Mode"
         >
-          Night
+          <Moon size={14} className="shrink-0" />
+          <span className={mode === 'night' ? 'inline' : 'hidden sm:inline'}>Night</span>
         </button>
-        <span className="w-px h-3.5 bg-earth-200 mx-0.5" />
+
+        <span className="w-px h-5 bg-earth-300/60 mx-0.5 shrink-0" />
+
         <button
-          onClick={() => setWireframe(!wireframe)}
-          className={`px-3 py-1 rounded-full transition-all font-medium ${wireframe ? 'bg-sage text-white' : 'text-earth-900 hover:text-clay'}`}
-          title="Toggle Structural Wireframe"
+          onClick={() => {
+            if (mode === 'blueprint') {
+              setMode('day');
+              setWireframe(false);
+            } else {
+              setMode('blueprint');
+              setWireframe(true);
+            }
+          }}
+          className={`flex items-center justify-center gap-1.5 px-3.5 h-11 min-h-[44px] rounded-full transition-all font-medium duration-200 ${
+            mode === 'blueprint' || wireframe
+              ? 'bg-sky-700 text-white shadow-sm' 
+              : 'text-earth-800 hover:text-clay hover:bg-earth-100/60'
+          }`}
+          title="Toggle Structural Blueprint"
         >
-          {wireframe ? 'Wireframe: ON' : 'Blueprint'}
+          <Layers size={14} className="shrink-0" />
+          <span className={mode === 'blueprint' || wireframe ? 'inline' : 'hidden sm:inline'}>CAD</span>
         </button>
       </div>
 
-      {/* Drag Hint Pill */}
-      <div className="absolute bottom-4 left-5 flex items-center gap-2 pointer-events-none bg-earth-900/85 text-earth-50 text-[11px] uppercase tracking-widest px-3.5 py-1.5 rounded-full backdrop-blur-md font-mono border border-earth-700/60 shadow-md">
-        <span className="w-2 h-2 rounded-full bg-clay animate-ping" />
-        <span>3D Bioclimatic Villa &bull; Drag to Rotate 360°</span>
+      {/* Floating Rotate Icon Badge (Smoothly fades out on first drag) */}
+      <div
+        className={`absolute top-4 left-4 sm:bottom-4 sm:top-auto flex items-center gap-2 pointer-events-none z-10 bg-stone-900/90 text-white text-xs px-3.5 py-1.5 rounded-full backdrop-blur-md border border-stone-700/80 shadow-lg transition-opacity duration-700 ${
+          hasInteracted ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        <svg className="w-3.5 h-3.5 text-amber-400 animate-spin shrink-0" style={{ animationDuration: '6s' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          <path d="M21 3v9h-9" />
+        </svg>
+        <span className="text-[11.5px] font-medium text-stone-100 tracking-wide select-none">360° Drag to Rotate</span>
       </div>
+
     </div>
   );
 }
+
 export default Hero3DCanvas;

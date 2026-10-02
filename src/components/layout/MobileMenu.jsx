@@ -113,17 +113,7 @@ export function MobileMenu({ isOpen, onClose }) {
             >
               Natural Building Workshops
             </NavLink>
-            <NavLink
-              to="/testimonials"
-              onClick={onClose}
-              className={({ isActive }) =>
-                `text-lg font-heading tracking-wide transition-colors ${
-                  isActive ? 'text-clay font-semibold' : 'text-stone-800 dark:text-stone-200'
-                }`
-              }
-            >
-              Client Testimonials
-            </NavLink>
+
             <NavLink
               to="/contact"
               onClick={onClose}

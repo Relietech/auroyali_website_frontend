@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
-import { FiArrowUpRight, FiMapPin, FiPhone, FiMail } from "react-icons/fi";
+import { FiMapPin, FiPhone, FiMail } from "react-icons/fi";
 
 const explore = [
   { label: "Home", to: "/" },
@@ -102,29 +102,22 @@ export function Footer() {
       <LoomThreads />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-earth-900 via-transparent to-earth-900/90" />
 
-      <div className="relative mx-auto max-w-7xl px-4 pt-20 md:px-8 md:pt-28">
+      <div className="relative mx-auto max-w-7xl px-4 pt-10 md:px-8 md:pt-14">
         {/* CTA */}
         <motion.div
           variants={fadeUp}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.3 }}
-          className="flex flex-col gap-8 border-b border-earth-300/20 pb-14 md:flex-row md:items-end md:justify-between"
+          className="border-b border-earth-300/20 pb-8"
         >
-          <h2 className="max-w-3xl font-heading text-4xl font-semibold leading-tight md:text-6xl">
+          <h2 className="max-w-3xl font-heading text-3xl font-semibold leading-tight md:text-5xl">
             Let&apos;s build something rooted in the earth.
           </h2>
-          <Link
-            to="/contact"
-            className="group inline-flex w-fit items-center gap-3 bg-clay px-7 py-4 font-body text-sm uppercase tracking-widest text-white transition hover:bg-earth-500"
-          >
-            Start a project
-            <FiArrowUpRight className="text-lg transition group-hover:translate-x-1 group-hover:-translate-y-1" />
-          </Link>
         </motion.div>
 
         {/* Columns */}
-        <div className="grid gap-12 py-14 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 py-10 md:grid-cols-2 lg:grid-cols-4">
           <motion.div variants={fadeUp} custom={0} initial="hidden" whileInView="show" viewport={{ once: true }}>
             <h3 className="font-heading text-3xl">AuroYali</h3>
             <p className="mt-4 font-body text-sm font-light leading-relaxed text-earth-100/70">
@@ -148,31 +141,34 @@ export function Footer() {
             </div>
           </motion.div>
 
-          <motion.nav variants={fadeUp} custom={1} initial="hidden" whileInView="show" viewport={{ once: true }} aria-label="Explore">
-            <h4 className="font-body text-xs uppercase tracking-[0.25em] text-earth-300">Explore</h4>
-            <ul className="mt-5 space-y-3 font-body text-sm font-light">
-              {explore.map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to} className="transition hover:pl-1 hover:text-clay">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </motion.nav>
+          {/* Explore & Services: 2-column grid on mobile, individual grid cells on tablet/desktop */}
+          <div className="grid grid-cols-2 gap-6 sm:gap-10 md:contents">
+            <motion.nav variants={fadeUp} custom={1} initial="hidden" whileInView="show" viewport={{ once: true }} aria-label="Explore">
+              <h4 className="font-body text-xs uppercase tracking-[0.25em] text-earth-300">Explore</h4>
+              <ul className="mt-5 space-y-3 font-body text-sm font-light">
+                {explore.map((l) => (
+                  <li key={l.to}>
+                    <Link to={l.to} className="transition hover:pl-1 hover:text-clay">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </motion.nav>
 
-          <motion.nav variants={fadeUp} custom={2} initial="hidden" whileInView="show" viewport={{ once: true }} aria-label="Services">
-            <h4 className="font-body text-xs uppercase tracking-[0.25em] text-earth-300">Services</h4>
-            <ul className="mt-5 space-y-3 font-body text-sm font-light">
-              {services.map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to} className="transition hover:pl-1 hover:text-clay">
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </motion.nav>
+            <motion.nav variants={fadeUp} custom={2} initial="hidden" whileInView="show" viewport={{ once: true }} aria-label="Services">
+              <h4 className="font-body text-xs uppercase tracking-[0.25em] text-earth-300">Services</h4>
+              <ul className="mt-5 space-y-3 font-body text-sm font-light">
+                {services.map((l) => (
+                  <li key={l.to}>
+                    <Link to={l.to} className="transition hover:pl-1 hover:text-clay">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </motion.nav>
+          </div>
 
           <motion.div variants={fadeUp} custom={3} initial="hidden" whileInView="show" viewport={{ once: true }}>
             <h4 className="font-body text-xs uppercase tracking-[0.25em] text-earth-300">Visit &amp; Contact</h4>
@@ -199,20 +195,20 @@ export function Footer() {
             </ul>
           </motion.div>
         </div>
+      </div>
 
-        {/* Bleeding wordmark */}
-        <div className="relative -mb-[3.5vw] select-none overflow-hidden">
-          <motion.h1
-            initial={{ y: "60%", opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 1.1, ease: "easeOut" }}
-            className="bg-gradient-to-b from-earth-300/60 to-transparent bg-clip-text text-center font-heading text-[19vw] font-bold uppercase leading-[0.85] tracking-tight text-transparent"
-            aria-hidden="true"
-          >
-            AuroYali
-          </motion.h1>
-        </div>
+      {/* Bleeding grand wordmark spanning full width */}
+      <div className="relative -mb-2 sm:-mb-4 md:-mb-7 lg:-mb-10 select-none overflow-hidden w-full flex justify-center px-1">
+        <motion.p
+          initial={{ y: "40%", opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 1.1, ease: "easeOut" }}
+          className="bg-gradient-to-b from-earth-300/60 via-earth-300/30 to-transparent bg-clip-text text-center font-heading text-[17.5vw] font-bold uppercase leading-[0.82] tracking-tight text-transparent whitespace-nowrap select-none w-full"
+          aria-hidden="true"
+        >
+          AuroYali
+        </motion.p>
       </div>
 
       {/* Bottom bar */}

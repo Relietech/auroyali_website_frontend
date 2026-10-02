@@ -14,7 +14,7 @@ export function BambooWorkshop() {
         title={workshop.title}
         subtitle="An intensive 5-day hands-on masterclass in Auroville exploring non-toxic preservation, structural joinery, and full-scale reciprocal dome construction."
         breadcrumb="Bamboo Masterclass"
-        bgImage="https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1800&q=80"
+        bgImage="https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=1800&q=80"
         tag="Auroville Hands-On Masterclass"
       />
 

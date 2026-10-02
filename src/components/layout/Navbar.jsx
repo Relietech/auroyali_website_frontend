@@ -23,15 +23,15 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-full bg-clay text-white flex items-center justify-center font-heading text-xl font-bold shadow-md group-hover:scale-105 transition-transform">
+            <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-clay text-white flex items-center justify-center font-heading text-lg sm:text-xl font-bold shadow-md group-hover:scale-105 transition-transform shrink-0">
                 AY
               </div>
               <div className="flex flex-col">
-                <span className="font-heading text-2xl font-bold tracking-[0.2em] text-earth-900 leading-none">
+                <span className="font-heading text-xl sm:text-2xl font-bold tracking-[0.15em] sm:tracking-[0.2em] text-earth-900 leading-none">
                   AUROYALI
                 </span>
-                <span className="text-[10px] tracking-widest uppercase text-earth-700 font-sans font-medium mt-0.5">
+                <span className="text-[9px] sm:text-[10px] tracking-wider sm:tracking-widest uppercase text-earth-700 font-sans font-medium mt-0.5 whitespace-nowrap">
                   Auroville Architecture
                 </span>
               </div>
@@ -100,17 +100,6 @@ export function Navbar() {
               </NavLink>
 
               <NavLink
-                to="/testimonials"
-                className={({ isActive }) =>
-                  `nav-link relative py-1 font-medium transition-colors ${
-                    isActive ? 'text-clay font-bold' : 'text-earth-900 hover:text-clay'
-                  }`
-                }
-              >
-                Testimonials
-              </NavLink>
-
-              <NavLink
                 to="/contact"
                 className={({ isActive }) =>
                   `nav-link relative py-1 font-medium transition-colors ${
@@ -135,10 +124,10 @@ export function Navbar() {
             {/* Mobile Menu Toggle Button */}
             <button
               onClick={() => setIsMobileOpen(true)}
-              className="p-2 lg:hidden rounded-lg bg-earth-200 text-earth-900 hover:text-clay transition-colors"
+              className="flex lg:hidden items-center justify-center w-10 h-10 rounded-full bg-earth-200/90 text-earth-900 hover:bg-clay hover:text-white border border-earth-300/80 shadow-sm shrink-0 active:scale-95 transition-all z-10"
               aria-label="Open Navigation Menu"
             >
-              <Menu size={24} />
+              <Menu size={22} className="stroke-[2.2]" />
             </button>
           </div>
         </div>
