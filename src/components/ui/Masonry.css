@@ -1,0 +1,34 @@
+.masonry-list {
+  position: relative;
+  width: 100%;
+  transition: height 0.3s ease;
+}
+
+.masonry-item-wrapper {
+  position: absolute;
+  will-change: transform, width, height, opacity;
+  padding: 8px;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+}
+
+.masonry-item-wrapper > .masonry-item-img {
+  position: relative;
+  background-size: cover;
+  background-position: center center;
+  width: 100%;
+  height: 100%;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(220, 200, 175, 0.5);
+  background-color: #26211c;
+  filter: grayscale(100%) brightness(0.92);
+  transition: filter 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+}
+
+.masonry-item-wrapper:hover > .masonry-item-img {
+  filter: grayscale(0%) brightness(1);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+}

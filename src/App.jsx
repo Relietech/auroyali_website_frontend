@@ -1,11 +1,14 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { AppRoutes } from './routes/AppRoutes';
+import { SmoothScroll } from './components/common/SmoothScroll';
 
 export function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <SmoothScroll>
+        <AppRoutes />
+      </SmoothScroll>
     </BrowserRouter>
   );
 }
