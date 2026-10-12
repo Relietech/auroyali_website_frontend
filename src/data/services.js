@@ -2,7 +2,7 @@ export const servicesData = [
   {
     id: "architecture",
     slug: "architecture",
-    title: "Bioclimatic Architecture",
+    title: "Architecture",
     shortDesc: "Climate-responsive, passive solar architecture integrating local vernacular wisdom with contemporary precision.",
     longDesc: "At AuroYali, our architectural practice treats the building as a living organism tuned to sun paths, microclimates, wind corridors, and topography. We minimize operational energy and maximize thermal comfort through spatial orientation, natural air chimneys, and shaded courtyards.",
     icon: "Compass",
@@ -36,7 +36,7 @@ export const servicesData = [
   {
     id: "carpentry",
     slug: "carpentry",
-    title: "Artisanal Carpentry & Structural Wood",
+    title: "Carpentry",
     shortDesc: "Custom joinery, seasoned teak, reclaimed tropical hardwoods, and engineered bamboo composite structures.",
     longDesc: "Our woodcraft workshop bridges traditional mortise-and-tenon joinery with precision digital craft. We work with sustainably harvested acacia, neem, reclaimed country wood, and borate-treated bamboo to produce structural trusses, doors, screens, and bespoke furniture.",
     icon: "Hammer",

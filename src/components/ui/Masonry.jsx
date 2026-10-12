@@ -116,7 +116,7 @@ export const Masonry = ({
       const x = columnWidth * col;
       // Default height variety if not explicitly provided
       const rawHeight = child.height || (idx % 3 === 0 ? 580 : idx % 3 === 1 ? 460 : 520);
-      const height = rawHeight / 1.4;
+      const height = rawHeight / 1.15;
       const y = colHeights[col];
 
       colHeights[col] += height;
@@ -261,13 +261,13 @@ export const Masonry = ({
                 />
               )}
 
-              {/* Gradient overlay on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-earth-950/90 via-earth-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Permanent bottom gradient overlay for clear text legibility */}
+              <div className="absolute inset-0 bg-gradient-to-t from-earth-950/95 via-earth-950/50 to-transparent transition-opacity duration-300" />
 
-              {/* Name and Role Overlay - Revealed on hover */}
-              <div className="relative z-10 p-5 text-white opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
+              {/* Name and Work/Role Overlay - Always visible normally */}
+              <div className="relative z-10 p-5 text-white transition-transform duration-300 ease-out group-hover:-translate-y-1">
                 {item.role && (
-                  <span className="text-xs font-mono text-clay-300 block uppercase tracking-wider font-medium">
+                  <span className="text-xs font-mono text-clay-300 block uppercase tracking-wider font-semibold">
                     {item.role}
                   </span>
                 )}

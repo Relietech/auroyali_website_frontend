@@ -15,7 +15,7 @@ export function PageBanner({
   const opacityText = useTransform(scrollY, [0, 400], [1, 0.4]);
 
   return (
-    <div className="relative pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden bg-earth-900 text-stone-100">
+    <div className="relative pt-28 pb-14 md:pt-32 md:pb-20 overflow-hidden bg-earth-900 text-stone-100">
       <motion.div 
         style={{ y: yBg }} 
         className="absolute inset-0 z-0 will-change-transform"

@@ -22,7 +22,9 @@ export function AppRoutes() {
         <Route index element={<Home />} />
         <Route path="about" element={<AboutUs />} />
         
-        {/* Services */}
+        {/* Services & Direct Service Aliases */}
+        <Route path="architecture" element={<Architecture />} />
+        <Route path="carpentry" element={<Carpentry />} />
         <Route path="services" element={<Architecture />} />
         <Route path="services/architecture" element={<Architecture />} />
         <Route path="services/construction" element={<Construction />} />

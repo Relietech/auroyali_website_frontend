@@ -55,7 +55,7 @@ const floatOrb2 = {
 
 export function Hero() {
   return (
-    <section className="relative pt-20 sm:pt-24 md:pt-36 lg:pt-40 pb-6 sm:pb-10 md:pb-24 overflow-hidden bg-gradient-to-b from-earth-100/60 via-earth-50 to-earth-50">
+    <section className="relative pt-20 sm:pt-22 md:pt-24 lg:pt-24 pb-6 sm:pb-10 md:pb-16 overflow-hidden bg-gradient-to-b from-earth-100/60 via-earth-50 to-earth-50">
       {/* Background Subtle Architectural Dot Matrix */}
       <div className="absolute inset-0 opacity-[0.035] bg-[radial-gradient(#2f1f13_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 

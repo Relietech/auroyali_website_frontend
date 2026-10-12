@@ -116,10 +116,10 @@ export function SkewedCarousel({
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 brightness-95 group-hover:brightness-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-earth-950/90 via-earth-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-earth-950/95 via-earth-950/45 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
 
-              {/* Card Information Overlay - Revealed only on hover */}
+              {/* Card Information Overlay - Revealed on hover only */}
               <div className="relative z-10 p-6 text-white opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
                 <span className="text-[11px] font-mono text-clay-300 block uppercase tracking-widest font-semibold">
                   {member.role}

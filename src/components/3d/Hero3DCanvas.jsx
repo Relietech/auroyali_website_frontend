@@ -2,7 +2,8 @@ import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
-import { Sun, Sunset, Moon, Layers } from 'lucide-react';
+import { Sun, Sunset, Moon, Layers, RefreshCw } from 'lucide-react';
+import { WebGLErrorBoundary, isWebGLAvailable } from './WebGLErrorBoundary';
 
 // ==========================================
 // PROCEDURAL ARCHITECTURAL TEXTURES GENERATOR
@@ -651,6 +652,71 @@ function AtmosphericParticles({ count = 30, mode }) {
   );
 }
 
+// Fallback architectural illustration when WebGL is blocked or unavailable
+function HeroArchitecturalFallback({ mode, wireframe, onRetry }) {
+  const isNight = mode === 'night';
+  const isSunset = mode === 'sunset';
+
+  const skyBg = isNight
+    ? 'from-[#0d131f] via-[#1a2336] to-[#0b0f19]'
+    : isSunset
+    ? 'from-[#e47e4d] via-[#b8532d] to-[#422217]'
+    : 'from-[#f5ede4] via-[#eedbc9] to-[#dfc7b0]';
+
+  const houseBorder = wireframe
+    ? '#38bdf8'
+    : isNight
+    ? '#475569'
+    : '#b86b43';
+
+  return (
+    <div className={`w-full h-full relative flex flex-col items-center justify-center p-6 bg-gradient-to-br ${skyBg} transition-colors duration-700`}>
+      {/* Fallback notification pill */}
+      <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono tracking-wider bg-black/40 text-stone-200 border border-white/10 backdrop-blur-md">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+          Tactile Sanctuary View
+        </span>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] bg-white/20 hover:bg-white/30 text-white backdrop-blur-md border border-white/20 transition-all cursor-pointer"
+            title="Retry WebGL 3D"
+          >
+            <RefreshCw size={11} />
+            <span>Retry 3D</span>
+          </button>
+        )}
+      </div>
+
+      {/* Axonometric Architectural Outline */}
+      <svg
+        viewBox="0 0 400 260"
+        className="w-full max-w-[360px] h-auto drop-shadow-2xl transition-all duration-500"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <ellipse cx="200" cy="225" rx="150" ry="22" fill={isNight ? 'rgba(0,0,0,0.6)' : 'rgba(30,15,5,0.25)'} />
+        <polygon points="60,205 200,230 340,205 200,185" fill={wireframe ? 'transparent' : isNight ? '#1e293b' : '#d2c2b0'} stroke={houseBorder} strokeWidth="2" />
+        <polygon points="80,195 200,216 200,120 80,105" fill={wireframe ? 'transparent' : isNight ? '#0f172a' : '#c97746'} stroke={houseBorder} strokeWidth="2" />
+        <polygon points="200,216 320,195 320,105 200,120" fill={wireframe ? 'transparent' : isNight ? '#1e293b' : '#a85b30'} stroke={houseBorder} strokeWidth="2" />
+        <polygon points="50,110 200,135 350,110 200,85" fill={wireframe ? 'transparent' : isNight ? '#334155' : '#e88d55'} stroke={houseBorder} strokeWidth="2.5" />
+        <polygon points="100,135 180,148 180,175 100,160" fill={wireframe ? 'transparent' : isNight ? '#fbbf24' : isSunset ? '#fed7aa' : '#ffffff'} opacity={wireframe ? 0 : 0.85} stroke={houseBorder} strokeWidth="1.5" />
+        <polygon points="220,148 300,135 300,160 220,175" fill={wireframe ? 'transparent' : isNight ? '#f59e0b' : isSunset ? '#fdba74' : '#f8fafc'} opacity={wireframe ? 0 : 0.85} stroke={houseBorder} strokeWidth="1.5" />
+        <line x1="80" y1="130" x2="200" y2="148" stroke={isNight ? '#334155' : '#8d4522'} strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1="80" y1="160" x2="200" y2="178" stroke={isNight ? '#334155' : '#8d4522'} strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1="200" y1="148" x2="320" y2="130" stroke={isNight ? '#334155' : '#733516'} strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1="200" y1="178" x2="320" y2="160" stroke={isNight ? '#334155' : '#733516'} strokeWidth="1.5" strokeDasharray="3 3" />
+      </svg>
+
+      <span className="mt-4 text-xs tracking-widest uppercase font-mono text-stone-300/80">
+        Compressed Earth Sanctuary &bull; Auroville
+      </span>
+    </div>
+  );
+}
+
 // ==========================================
 // MAIN HERO 3D CANVAS COMPONENT
 // ==========================================
@@ -659,6 +725,14 @@ export function Hero3DCanvas({ className = "" }) {
   const [wireframe, setWireframe] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [webglAvailable, setWebglAvailable] = useState(() => isWebGLAvailable());
+  const [retryCount, setRetryCount] = useState(0);
+
+  const handleRetryWebgl = () => {
+    const isAvail = isWebGLAvailable();
+    setWebglAvailable(isAvail);
+    setRetryCount((c) => c + 1);
+  };
 
   const handleStartInteraction = () => {
     if (autoRotate) setAutoRotate(false);
@@ -671,69 +745,99 @@ export function Hero3DCanvas({ className = "" }) {
       style={{ touchAction: 'pan-y' }}
       onPointerDown={handleStartInteraction}
     >
-      
-      {/* 3D Canvas with dpr={[1, 1.5]} for smooth 60fps mobile GPU rendering */}
-      <Canvas
-        shadows
-        dpr={[1, 1.5]}
-        camera={{ position: [0.3, 2.0, 8.2], fov: 38 }}
-        className="cursor-grab active:cursor-grabbing w-full h-full"
-        style={{ touchAction: 'pan-y' }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+      <WebGLErrorBoundary
+        fallback={({ onRetry }) => (
+          <HeroArchitecturalFallback
+            mode={mode}
+            wireframe={wireframe}
+            onRetry={() => {
+              handleRetryWebgl();
+              onRetry();
+            }}
+          />
+        )}
       >
-        {/* Dynamic camera zoom and framing */}
-        <ResponsiveCameraController />
+        {webglAvailable ? (
+          <Canvas
+            key={`hero-canvas-${retryCount}`}
+            shadows
+            dpr={[1, 1.5]}
+            camera={{ position: [0.3, 2.0, 8.2], fov: 38 }}
+            className="cursor-grab active:cursor-grabbing w-full h-full"
+            style={{ touchAction: 'pan-y' }}
+            gl={{ antialias: true, powerPreference: 'default', failIfMajorPerformanceCaveat: false }}
+            onCreated={({ gl }) => {
+              gl.domElement.addEventListener(
+                'webglcontextlost',
+                (event) => {
+                  event.preventDefault();
+                  console.warn('[Hero3DCanvas] WebGL context lost.');
+                },
+                false
+              );
+            }}
+          >
+            {/* Dynamic camera zoom and framing */}
+            <ResponsiveCameraController />
 
-        {/* Atmospheric Sky Lighting */}
-        <ambientLight intensity={mode === 'night' ? 0.85 : mode === 'sunset' ? 1.0 : 1.4} />
-        
-        {/* Optimized Sun Light Shadow Map */}
-        <directionalLight
-          position={[8, 12, 7]}
-          intensity={mode === 'sunset' ? 2.4 : mode === 'night' ? 1.4 : 2.4}
-          color={mode === 'sunset' ? '#ffa366' : mode === 'night' ? '#bfdbfe' : '#fffbeb'}
-          castShadow
-          shadow-mapSize={[1024, 1024]}
-          shadow-bias={-0.0003}
-          shadow-normalBias={0.04}
-        />
-        
-        {/* Soft Secondary Bounce Fill Light */}
-        <directionalLight
-          position={[-6, 5, -5]}
-          intensity={mode === 'night' ? 0.6 : 0.6}
-          color={mode === 'sunset' ? '#b45309' : mode === 'night' ? '#38bdf8' : '#7a8b69'}
-        />
+            {/* Atmospheric Sky Lighting */}
+            <ambientLight intensity={mode === 'night' ? 0.85 : mode === 'sunset' ? 1.0 : 1.4} />
+            
+            {/* Optimized Sun Light Shadow Map */}
+            <directionalLight
+              position={[8, 12, 7]}
+              intensity={mode === 'sunset' ? 2.4 : mode === 'night' ? 1.4 : 2.4}
+              color={mode === 'sunset' ? '#ffa366' : mode === 'night' ? '#bfdbfe' : '#fffbeb'}
+              castShadow
+              shadow-mapSize={[1024, 1024]}
+              shadow-bias={-0.0003}
+              shadow-normalBias={0.04}
+            />
+            
+            {/* Soft Secondary Bounce Fill Light */}
+            <directionalLight
+              position={[-6, 5, -5]}
+              intensity={mode === 'night' ? 0.6 : 0.6}
+              color={mode === 'sunset' ? '#b45309' : mode === 'night' ? '#38bdf8' : '#7a8b69'}
+            />
 
-        {/* Architectural 3D Villa */}
-        <RealisticVilla
-          mode={mode}
-          wireframe={wireframe}
-        />
+            {/* Architectural 3D Villa */}
+            <RealisticVilla
+              mode={mode}
+              wireframe={wireframe}
+            />
 
-        {/* Soft Ground Contact Shadow */}
-        <ContactShadows
-          position={[0, -0.32, 0]}
-          opacity={0.6}
-          scale={9}
-          blur={1.6}
-          far={3.5}
-        />
+            {/* Soft Ground Contact Shadow */}
+            <ContactShadows
+              position={[0, -0.32, 0]}
+              opacity={0.6}
+              scale={9}
+              blur={1.6}
+              far={3.5}
+            />
 
-        {/* Orbit Controls: Smooth slow auto-rotation until user touches */}
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          enableDamping={true}
-          dampingFactor={0.07}
-          target={[0, 0.75, 0]}
-          minPolarAngle={Math.PI / 5.2}
-          maxPolarAngle={Math.PI / 2.18}
-          autoRotate={autoRotate}
-          autoRotateSpeed={0.8}
-          onStart={handleStartInteraction}
-        />
-      </Canvas>
+            {/* Orbit Controls: Smooth slow auto-rotation until user touches */}
+            <OrbitControls
+              enableZoom={false}
+              enablePan={false}
+              enableDamping={true}
+              dampingFactor={0.07}
+              target={[0, 0.75, 0]}
+              minPolarAngle={Math.PI / 5.2}
+              maxPolarAngle={Math.PI / 2.18}
+              autoRotate={autoRotate}
+              autoRotateSpeed={0.8}
+              onStart={handleStartInteraction}
+            />
+          </Canvas>
+        ) : (
+          <HeroArchitecturalFallback
+            mode={mode}
+            wireframe={wireframe}
+            onRetry={handleRetryWebgl}
+          />
+        )}
+      </WebGLErrorBoundary>
 
       {/* Floating Mode Switcher (Positioned at bottom on mobile for thumb reach, top on desktop) */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 sm:bottom-auto sm:left-auto sm:top-4 sm:right-4 sm:translate-x-0 flex items-center gap-1 bg-white/95 backdrop-blur-xl p-1.5 rounded-full border border-earth-200/90 shadow-lg z-20 text-xs">

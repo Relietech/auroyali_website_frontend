@@ -1,87 +1,197 @@
 import React from 'react';
-import { siteInfo } from '../../data/siteInfo';
-import { MapPin, Phone, Mail, ShieldCheck } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ShieldCheck, Instagram, Facebook, Linkedin } from 'lucide-react';
 
-export function ContactInfo() {
+export function ContactInfo({ config }) {
+  const company = config?.company || {
+    name: "AuroYali",
+    tagline: "A unit under Auroville Universal Town",
+    about: "We work to manifest a new consciousness in the field of building construction."
+  };
+
+  const contact = config?.contact || {
+    address: "International Zone, Kottakarai Village, Auroville, Tamil Nadu – 605101, India",
+    phone: "+91 89400 00126",
+    phoneSecondary: "+91 95855 50709",
+    landline: "0413-2622411",
+    email: "auroyali@auroville.org.in",
+    emailDesign: "auroyali-design@auroville.org.in",
+    workingHours: "Monday – Saturday: 9:00 AM – 5:30 PM (IST)",
+    socialLinks: {
+      instagram: "https://www.instagram.com/auroyali_auroville/",
+      facebook: "https://www.facebook.com/people/auroyali_auroville/100072066965911/",
+      linkedin: "https://www.linkedin.com/company/auroyali/"
+    }
+  };
+
   return (
-    <div className="bg-earth-900 text-stone-100 rounded-3xl p-8 md:p-12 border border-earth-800 space-y-8 shadow-2xl h-full flex flex-col justify-between">
-      <div>
-        <span className="text-xs uppercase tracking-widest text-clay font-mono block mb-2">
-          Direct Studio Details
-        </span>
-        <h3 className="font-heading text-3xl md:text-4xl text-earth-50 mb-4">
-          Visit Our Auroville Studio
-        </h3>
-        <p className="text-stone-300 font-light text-sm md:text-base leading-relaxed mb-8">
-          We welcome clients, collaborating architects, and workshop participants to our natural design studios and soil testing yard in the International Zone.
-        </p>
+    <div className="bg-earth-900 text-stone-100 rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-earth-800 space-y-6 sm:space-y-8 shadow-2xl h-full flex flex-col justify-between w-full">
+      <div className="space-y-6">
+        <div>
+          <span className="text-xs uppercase tracking-widest text-clay font-mono block mb-1.5 sm:mb-2 font-semibold">
+            {company.tagline}
+          </span>
+          <h3 className="font-heading text-2xl sm:text-3xl text-earth-50 font-bold mb-2 sm:mb-3">
+            Contact {company.name}
+          </h3>
+          <p className="text-stone-300 font-light text-xs sm:text-sm md:text-base leading-relaxed">
+            Reach out to our team for multidisciplinary construction services, consultations, architectural planning, and custom building inquiries.
+          </p>
+        </div>
 
-        <div className="space-y-6">
-          <div className="flex items-start gap-4">
-            <div className="p-3 rounded-2xl bg-earth-800 text-clay shrink-0">
-              <MapPin size={22} />
+        <div className="space-y-4 sm:space-y-5 pt-1 sm:pt-2">
+          {/* Address */}
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-earth-800 text-clay shrink-0">
+              <MapPin size={18} className="sm:w-5 sm:h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <span className="text-xs uppercase tracking-wider text-stone-400 font-mono block">
-                Office & Workshops
+                Office & Workshop Address
               </span>
-              <p className="text-stone-100 text-sm font-medium mt-0.5">
-                {siteInfo.location.address}
-              </p>
-              <p className="text-stone-400 text-xs">
-                {siteInfo.location.city}, {siteInfo.location.state} - {siteInfo.location.pincode}, {siteInfo.location.country}
+              <p className="text-stone-100 font-medium text-xs sm:text-sm mt-0.5 leading-snug">
+                {contact.address}
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-4">
-            <div className="p-3 rounded-2xl bg-earth-800 text-clay shrink-0">
-              <Phone size={22} />
+          {/* Phone Numbers */}
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-earth-800 text-clay shrink-0">
+              <Phone size={18} className="sm:w-5 sm:h-5" />
             </div>
-            <div>
+            <div className="min-w-0 space-y-1">
               <span className="text-xs uppercase tracking-wider text-stone-400 font-mono block">
-                Direct Line / WhatsApp
+                Direct Lines & WhatsApp
               </span>
-              <a
-                href={`tel:${siteInfo.contact.phone}`}
-                className="text-stone-100 hover:text-clay text-base font-semibold transition-colors mt-0.5 block"
-              >
-                {siteInfo.contact.phone}
-              </a>
-              <span className="text-stone-400 text-xs">Mon – Sat, 8:30 AM – 5:30 PM IST</span>
+              <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-1">
+                <a
+                  href={`tel:${contact.phone.replace(/[^0-9+]/g, '')}`}
+                  className="text-stone-100 hover:text-clay text-sm sm:text-base font-semibold transition-colors block"
+                >
+                  {contact.phone}
+                </a>
+                {contact.phoneSecondary && (
+                  <>
+                    <span className="text-stone-500 text-xs">&bull;</span>
+                    <a
+                      href={`tel:${contact.phoneSecondary.replace(/[^0-9+]/g, '')}`}
+                      className="text-stone-300 hover:text-clay text-xs sm:text-sm transition-colors block"
+                    >
+                      {contact.phoneSecondary}
+                    </a>
+                  </>
+                )}
+              </div>
+              {contact.landline && (
+                <span className="text-stone-400 text-xs block">
+                  Landline: <a href={`tel:${contact.landline.replace(/[^0-9+]/g, '')}`} className="hover:text-clay">{contact.landline}</a>
+                </span>
+              )}
             </div>
           </div>
 
-          <div className="flex items-start gap-4">
-            <div className="p-3 rounded-2xl bg-earth-800 text-clay shrink-0">
-              <Mail size={22} />
+          {/* Email Addresses */}
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-earth-800 text-clay shrink-0">
+              <Mail size={18} className="sm:w-5 sm:h-5" />
             </div>
-            <div>
+            <div className="min-w-0 space-y-1">
               <span className="text-xs uppercase tracking-wider text-stone-400 font-mono block">
                 Email Correspondence
               </span>
               <a
-                href={`mailto:${siteInfo.contact.emailGeneral}`}
-                className="text-stone-100 hover:text-clay text-sm font-medium transition-colors block mt-0.5"
+                href={`mailto:${contact.email}`}
+                className="text-stone-100 hover:text-clay text-xs sm:text-sm font-medium transition-colors block break-all"
               >
-                {siteInfo.contact.emailGeneral} (General)
+                {contact.email} <span className="text-[11px] sm:text-xs text-stone-400 font-normal">(Construction & General)</span>
               </a>
-              <a
-                href={`mailto:${siteInfo.contact.emailDesign}`}
-                className="text-stone-400 hover:text-clay text-xs transition-colors block"
-              >
-                {siteInfo.contact.emailDesign} (Architecture/Portfolio)
-              </a>
+              {contact.emailDesign && (
+                <a
+                  href={`mailto:${contact.emailDesign}`}
+                  className="text-stone-300 hover:text-clay text-xs transition-colors block break-all"
+                >
+                  {contact.emailDesign} <span className="text-stone-400">(Architecture & Design)</span>
+                </a>
+              )}
             </div>
           </div>
+
+          {/* Working Hours */}
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-earth-800 text-clay shrink-0">
+              <Clock size={18} className="sm:w-5 sm:h-5" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs uppercase tracking-wider text-stone-400 font-mono block">
+                Working Hours
+              </span>
+              <p className="text-stone-200 text-xs sm:text-sm mt-0.5">
+                {contact.workingHours}
+              </p>
+            </div>
+          </div>
+
+          {/* Social Links */}
+          {contact.socialLinks && (
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-earth-800 text-clay shrink-0">
+                <ShieldCheck size={18} className="sm:w-5 sm:h-5" />
+              </div>
+              <div className="min-w-0 w-full">
+                <span className="text-xs uppercase tracking-wider text-stone-400 font-mono block mb-2">
+                  Social Channels
+                </span>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  {contact.socialLinks.instagram && contact.socialLinks.instagram !== 'none' && (
+                    <a
+                      href={contact.socialLinks.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="AuroYali Instagram"
+                      className="px-2.5 py-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-earth-800 hover:bg-clay text-stone-200 hover:text-white transition-colors inline-flex items-center gap-1.5 text-xs font-medium"
+                    >
+                      <Instagram size={15} />
+                      <span>Instagram</span>
+                    </a>
+                  )}
+                  {contact.socialLinks.facebook && contact.socialLinks.facebook !== 'none' && (
+                    <a
+                      href={contact.socialLinks.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="AuroYali Facebook"
+                      className="px-2.5 py-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-earth-800 hover:bg-clay text-stone-200 hover:text-white transition-colors inline-flex items-center gap-1.5 text-xs font-medium"
+                    >
+                      <Facebook size={15} />
+                      <span>Facebook</span>
+                    </a>
+                  )}
+                  {contact.socialLinks.linkedin && contact.socialLinks.linkedin !== 'none' && (
+                    <a
+                      href={contact.socialLinks.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="AuroYali LinkedIn"
+                      className="px-2.5 py-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-earth-800 hover:bg-clay text-stone-200 hover:text-white transition-colors inline-flex items-center gap-1.5 text-xs font-medium"
+                    >
+                      <Linkedin size={15} />
+                      <span>LinkedIn</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="p-4 rounded-2xl bg-earth-800/80 border border-earth-700/60 text-xs text-stone-300 flex items-center gap-3">
-        <ShieldCheck size={28} className="text-sage shrink-0" />
-        <span>Auroville Foundation Registered Unit &bull; Bioclimatic Architectural Practice</span>
+      {/* Footer Unit Badge */}
+      <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-earth-800/80 border border-earth-700/60 text-xs text-stone-300 flex items-center gap-2.5 sm:gap-3 mt-4 sm:mt-6">
+        <ShieldCheck size={22} className="text-sage shrink-0" />
+        <span className="text-[11px] sm:text-xs">{company.tagline} &bull; Model Construction Organization</span>
       </div>
     </div>
   );
 }
+
 export default ContactInfo;

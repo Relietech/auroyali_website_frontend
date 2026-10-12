@@ -108,26 +108,18 @@ function ArtisansMobileCarousel({ items, imageErrorMap, handleImageError }) {
                   }`}
                 />
                 <div
-                  className={`absolute inset-0 bg-gradient-to-t from-earth-950/95 via-earth-950/40 to-transparent transition-opacity duration-300 ${
-                    isActive ? 'opacity-100' : 'opacity-20 group-hover:opacity-100'
-                  }`}
+                  className="absolute inset-0 bg-gradient-to-t from-earth-950/95 via-earth-950/45 to-transparent opacity-90 transition-opacity duration-300"
                 />
               </div>
 
-              {/* Name and Role Overlay */}
-              <div
-                className={`relative z-10 p-6 text-white transition-all duration-400 ease-out ${
-                  isActive 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0'
-                }`}
-              >
+              {/* Name and Role Overlay - Always visible normally */}
+              <div className="relative z-10 p-5 text-white transition-all duration-300 ease-out">
                 {artisan.role && (
                   <span className="text-xs font-mono text-clay-300 block uppercase tracking-wider font-semibold">
                     {artisan.role}
                   </span>
                 )}
-                <h4 className="font-heading text-2xl font-bold text-white leading-tight mt-0.5">
+                <h4 className="font-heading text-xl sm:text-2xl font-bold text-white leading-tight mt-0.5">
                   {artisan.name}
                 </h4>
               </div>
@@ -312,22 +304,6 @@ function AdminTiltCard({ admin, idx, isLeft, imageErrorMap, handleImageError }) 
             {admin.name}
           </motion.h4>
         </div>
-
-        {/* Info Reveal: Short trade line / bio fades in beneath the name on hover */}
-        {admin.trade && (
-          <motion.p
-            initial={{ opacity: 0, height: 0, y: 6 }}
-            animate={{
-              opacity: isHovered ? 1 : 0,
-              height: isHovered ? 'auto' : 0,
-              y: isHovered ? 0 : 6
-            }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="text-xs font-mono text-stone-300 font-light mt-1.5 overflow-hidden line-clamp-1"
-          >
-            {admin.trade}
-          </motion.p>
-        )}
       </div>
     </motion.div>
   );
@@ -513,12 +489,12 @@ export function MeetOurTeam() {
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108 brightness-95 group-hover:brightness-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-earth-950/90 via-earth-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-earth-950/95 via-earth-950/45 to-transparent transition-opacity duration-300" />
               </div>
 
-              {/* Member Name and Role Overlay - Revealed on hover */}
-              <div className="relative z-10 p-6 text-white opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
-                <span className="text-xs font-mono text-sage-300 block uppercase tracking-wider font-medium">
+              {/* Member Name and Role Overlay - Always visible normally */}
+              <div className="relative z-10 p-6 text-white transition-all duration-300 ease-out group-hover:-translate-y-1">
+                <span className="text-xs font-mono text-sage-300 block uppercase tracking-wider font-semibold">
                   {SITE_ENGINEERS_SECTION.member.role}
                 </span>
                 <h4 className="font-heading text-2xl sm:text-3xl font-bold text-white leading-tight mt-0.5">

@@ -10,7 +10,8 @@ export const siteInfo = {
     country: "India"
   },
   contact: {
-    phone: "+91 89400 00126",
+    phone: "+91 9585550709",
+    phoneSecondary: "+91 89400 00126",
     emailGeneral: "auroyali@auroville.org.in",
     emailDesign: "auroyali-design@auroville.org.in",
     hours: "Monday – Saturday: 8:30 AM – 5:30 PM (IST)"

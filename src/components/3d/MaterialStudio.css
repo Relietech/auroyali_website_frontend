@@ -765,3 +765,165 @@
     transform: scaleX(1) !important;
   }
 }
+
+/* ==========================================================================
+   Tactile 2.5D Fallback Viewer (when WebGL is disabled or context lost)
+   ========================================================================== */
+
+.ms-fallback-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 40px 20px 80px 20px;
+  box-sizing: border-box;
+  background: radial-gradient(ellipse at 50% 40%, #2b1b13 0%, #17100b 70%, #0d0805 100%);
+}
+
+.ms-fallback-status {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  z-index: 10;
+}
+
+.ms-fallback-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--ms-font-sans);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ms-tan);
+  background: rgba(181, 83, 45, 0.15);
+  border: 1px solid rgba(181, 83, 45, 0.3);
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.ms-fallback-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--ms-font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ms-cream);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ms-fallback-retry:hover {
+  background: rgba(181, 83, 45, 0.4);
+  border-color: rgba(181, 83, 45, 0.6);
+  color: #ffffff;
+}
+
+.ms-fallback-stage {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  perspective: 800px;
+}
+
+.ms-fallback-block {
+  width: 240px;
+  height: 52px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #c77848 0%, #a85a30 50%, #8f4824 100%);
+  border: 1px solid rgba(255, 200, 160, 0.3);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  position: relative;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: rotateX(24deg) rotateZ(-4deg);
+}
+
+.ms-fallback-block.is-top {
+  z-index: 3;
+}
+
+.ms-fallback-block.is-mid {
+  z-index: 2;
+  background: linear-gradient(135deg, #be7142 0%, #9e5229 50%, #843f1d 100%);
+}
+
+.ms-fallback-block.is-btm {
+  z-index: 1;
+  background: linear-gradient(135deg, #b36638 0%, #944820 50%, #783515 100%);
+}
+
+.ms-fallback-stage.is-exploded .ms-fallback-block.is-top {
+  transform: rotateX(24deg) rotateZ(-4deg) translateY(-32px);
+}
+
+.ms-fallback-stage.is-exploded .ms-fallback-block.is-btm {
+  transform: rotateX(24deg) rotateZ(-4deg) translateY(32px);
+}
+
+.ms-fallback-layers {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ms-fallback-layer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-family: var(--ms-font-sans);
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.ms-fallback-layer-soil {
+  height: 75%;
+  background: linear-gradient(90deg, #b86235, #9c4c23);
+}
+
+.ms-fallback-layer-sand {
+  height: 18%;
+  background: linear-gradient(90deg, #d4a574, #b98b58);
+}
+
+.ms-fallback-layer-lime {
+  height: 7%;
+  background: linear-gradient(90deg, #eadecc, #d2c4b0);
+  color: #3b2a1e;
+  text-shadow: none;
+}
+
+.ms-fallback-shadow {
+  width: 220px;
+  height: 28px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.75) 0%, transparent 70%);
+  position: absolute;
+  bottom: 25px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
