@@ -1,0 +1,186 @@
+:root {
+  --reveal-font: 'Jost', 'Space Grotesk', sans-serif;
+}
+
+/* Container for full-screen fixed image reveal sections */
+.fixed-reveal-container {
+  position: relative;
+  width: 100%;
+  background-color: #000000;
+  margin: 0;
+  padding: 0;
+}
+
+/* Each project section is 100svh and clips the fixed image window */
+.fixed-reveal-section {
+  position: relative;
+  height: 100svh;
+  width: 100%;
+  clip-path: inset(0);
+  -webkit-clip-path: inset(0);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* The image stays fixed to the viewport and only appears through its clipped section window */
+.fixed-reveal-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100svh;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+  pointer-events: none;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Faint dark overlay above the fixed image for text legibility */
+.fixed-reveal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100svh;
+  background-color: rgba(0, 0, 0, 0.22);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Content container holding the title and button */
+.fixed-reveal-content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Centered Title with mixed font weights (light 300 / bold 700) */
+.fixed-reveal-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 58vw;
+  max-width: 90vw;
+  text-align: center;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  line-height: 1.18;
+  font-size: clamp(1.6rem, 2.8vw, 3.2rem);
+  text-transform: uppercase;
+  font-family: var(--reveal-font);
+  margin: 0 auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
+}
+
+
+.fixed-reveal-title .title-prefix {
+  font-weight: 300;
+  opacity: 0.95;
+  margin-right: 0.35em;
+}
+
+.fixed-reveal-title .title-highlight {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.fixed-reveal-title .title-suffix {
+  font-weight: 300;
+  opacity: 0.95;
+  margin-left: 0.35em;
+}
+
+/* Button wrapper centered at 70% height */
+.fixed-reveal-btn-wrap {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: auto;
+}
+
+/* Know more button matching Arkdes Studio (sharp corners, solid black, invert on hover) */
+.fixed-reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--reveal-font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 36px;
+  border-radius: 0;
+  border: 1px solid #000000;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.fixed-reveal-btn:hover {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.fixed-reveal-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 4px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .fixed-reveal-title {
+    width: 88vw;
+    font-size: clamp(1.25rem, 5.2vw, 2rem);
+    line-height: 1.22;
+  }
+
+  .fixed-reveal-btn-wrap {
+    top: 74%;
+  }
+
+  .fixed-reveal-btn {
+    padding: 8px 24px;
+    font-size: 0.72rem;
+  }
+}
+
+/* Custom sleek dark scrollbar for cards */
+.custom-specs-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-specs-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+.custom-specs-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+.custom-specs-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+.custom-specs-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) rgba(255, 255, 255, 0.05);
+}
+
+/* Touch device fallback for browser engines where position:fixed inside clip-path has quirks */
+@media (hover: none) and (pointer: coarse) {
+  .fixed-reveal-section {
+    position: relative;
+  }
+}
+

@@ -1,68 +1,106 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, MapPin } from 'lucide-react';
+import { MapPin, ArrowRight } from 'lucide-react';
+import './ProjectCard.css';
 
-export function ProjectCard({ project }) {
+/**
+ * ProjectCard - Modern, polished, perfectly aligned architectural project card.
+ * 
+ * Features:
+ * - Uniform card height in CSS Grid with flex-column stretch
+ * - Fixed 4:3.2 aspect ratio image with gradient scrim and category pill
+ * - Title and Subtitle with 2-line clamping and reserved min-heights
+ * - Pinned bottom tag area with max 3 chips + overflow count
+ * - Fully clickable card with keyboard focus ring and sliding arrow affordance
+ * 
+ * @param {Object} project - Project data object
+ * @param {number} index - Index in the list for lazy loading control
+ */
+export function ProjectCard({ project, index = 0 }) {
   if (!project) return null;
 
+  const projectSlug = project.slug || project.id;
+  const materials = project.materials || [];
+  const maxTags = 3;
+  const visibleTags = materials.slice(0, maxTags);
+  const remainingCount = materials.length - maxTags;
+
   return (
-    <div className="group bg-white dark:bg-stone-900 rounded-3xl overflow-hidden border border-earth-200/80 shadow-md hover:shadow-2xl transition-all duration-500 flex flex-col justify-between hover:-translate-y-1.5">
-      <div className="relative h-72 overflow-hidden bg-earth-200">
+    <Link
+      to={`/projects/${projectSlug}`}
+      className="project-card group"
+      aria-label={`View ${project.title} project details`}
+    >
+      {/* 1. Image Area with Fixed Aspect Ratio (4:3.2) */}
+      <div className="project-card-image-wrap">
         <img
           src={project.heroImage}
           alt={project.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          loading="lazy"
+          className="project-card-image"
+          loading={index < 3 ? "eager" : "lazy"}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
 
-        <span className="absolute top-4 left-4 bg-earth-900/80 backdrop-blur-md text-earth-100 text-[11px] uppercase tracking-widest px-3.5 py-1.5 rounded-full font-mono border border-white/10">
+        {/* Top-Left Category Pill */}
+        <span className="project-card-category">
           {project.category}
         </span>
 
-        <span className="absolute bottom-4 left-4 text-white text-xs flex items-center gap-1.5 font-light">
-          <MapPin size={13} className="text-clay" /> {project.location}
-        </span>
+        {/* Bottom Gradient Scrim Overlay */}
+        <div className="project-card-scrim" aria-hidden="true" />
+
+        {/* Bottom Baseline: Location & Year */}
+        <div className="project-card-meta">
+          <span className="project-card-location">
+            <MapPin size={13} className="project-card-location-icon" />
+            <span>{project.location}</span>
+          </span>
+          <span className="project-card-year">{project.year}</span>
+        </div>
       </div>
 
-      <div className="p-6 md:p-8 flex-grow flex flex-col justify-between">
-        <div>
-          <h3 className="font-heading text-2xl md:text-3xl font-bold text-earth-900 dark:text-stone-100 group-hover:text-clay transition-colors mb-2">
-            {project.title}
-          </h3>
-          <p className="text-xs uppercase tracking-wider text-stone-500 font-mono mb-4">
-            {project.subtitle}
-          </p>
-          <p className="body-text text-stone-600 dark:text-stone-400 text-sm font-light leading-relaxed line-clamp-3 mb-6">
-            {project.overview}
-          </p>
-        </div>
+      {/* 2. Content Area with Uniform 28px Padding */}
+      <div className="project-card-body">
+        {/* Title: 2 lines clamped with 2.3em reserved min-height */}
+        <h3 className="project-card-title">
+          {project.title}
+        </h3>
 
-        <div>
-          <div className="flex flex-wrap gap-1.5 mb-6">
-            {project.materials.slice(0, 3).map((mat, i) => (
-              <span
-                key={i}
-                className="text-[11px] px-2.5 py-1 rounded-md bg-earth-100 text-earth-800 dark:bg-stone-800 dark:text-stone-300 font-mono"
-              >
+        {/* Subtitle: Normal sentence case, 2 lines clamped with 3em reserved min-height */}
+        <p className="project-card-subtitle">
+          {project.subtitle}
+        </p>
+
+        {/* 3. Footer Area pinned to bottom with margin-top: auto */}
+        <div className="project-card-footer">
+          {/* Material Tags Row (Max 3 + Counter) */}
+          <div className="project-card-tags">
+            {visibleTags.map((mat, i) => (
+              <span key={i} className="project-card-tag">
                 {mat}
               </span>
             ))}
+            {remainingCount > 0 && (
+              <span className="project-card-tag-more">
+                +{remainingCount}
+              </span>
+            )}
           </div>
 
-          <div className="pt-4 border-t border-earth-100 dark:border-stone-800 flex items-center justify-between">
-            <span className="text-xs text-stone-400 font-mono">{project.area}</span>
-            <Link
-              to={`/projects/${project.slug}`}
-              className="inline-flex items-center gap-1 text-xs uppercase tracking-widest font-semibold text-clay hover:text-earth-900 transition-colors"
-            >
-              <span>Explore Project</span>
-              <ArrowUpRight size={15} />
-            </Link>
+          {/* Action Link Bar */}
+          <div className="project-card-action-bar">
+            <span className="project-card-area">
+              {project.area}
+            </span>
+
+            <span className="project-card-link">
+              <span>View project</span>
+              <ArrowRight size={14} className="project-card-arrow" />
+            </span>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
+
 export default ProjectCard;

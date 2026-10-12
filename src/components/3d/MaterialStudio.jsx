@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Model3D } from './Model3D';
+import { WebGLErrorBoundary, isWebGLAvailable } from './WebGLErrorBoundary';
 import './MaterialStudio.css';
 
 export const DEFAULT_STUDIO_DATA = {
@@ -59,6 +60,62 @@ export const DEFAULT_STUDIO_DATA = {
   },
 };
 
+// Tactile 2.5D Fallback Viewer when WebGL context is lost or blocked
+function CSEBFallbackViewer({ activeSpec, stacked, onRetry }) {
+  const isComp = activeSpec === 'COMPOSITION';
+  return (
+    <div className="ms-fallback-view" role="img" aria-label="Tactile visualization of compressed earth blocks">
+      <div className="ms-fallback-status">
+        <span className="ms-fallback-badge">
+          <span className="ms-dot" style={{ background: '#e07a42' }} />
+          Tactile 2.5D Studio
+        </span>
+        {onRetry && (
+          <button
+            type="button"
+            className="ms-fallback-retry"
+            onClick={onRetry}
+            title="Attempt to restart 3D WebGL renderer"
+          >
+            <span>Reload 3D</span>
+          </button>
+        )}
+      </div>
+
+      <div className={`ms-fallback-stage ${!stacked ? 'is-exploded' : ''}`}>
+        {/* Top Block */}
+        <div className="ms-fallback-block is-top">
+          {isComp ? (
+            <div className="ms-fallback-layers">
+              <div className="ms-fallback-layer ms-fallback-layer-soil">
+                <span>Red Soil</span>
+                <span>75%</span>
+              </div>
+              <div className="ms-fallback-layer ms-fallback-layer-sand">
+                <span>Sand</span>
+                <span>18%</span>
+              </div>
+              <div className="ms-fallback-layer ms-fallback-layer-lime">
+                <span>Stabilizer</span>
+                <span>7%</span>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Middle Block */}
+        <div className="ms-fallback-block is-mid" />
+
+        {/* Bottom Block */}
+        <div className="ms-fallback-block is-btm" />
+
+        {/* Shadow */}
+        <div className="ms-fallback-shadow" />
+      </div>
+    </div>
+  );
+}
+
 // Animated Number Counter Component
 function AnimatedSpecValue({ spec, isVisible, reducedMotion }) {
   const [displayVal, setDisplayVal] = useState(() => (reducedMotion ? spec.countTo : (spec.countFrom ?? null)));
@@ -106,6 +163,8 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
   const studioData = { ...DEFAULT_STUDIO_DATA, ...data };
   const [activeSpec, setActiveSpec] = useState('DENSITY');
   const [stacked, setStacked] = useState(true);
+  const [webglAvailable, setWebglAvailable] = useState(() => isWebGLAvailable());
+  const [retryCount, setRetryCount] = useState(0);
   const [revealedRows, setRevealedRows] = useState({
     DENSITY: true,
     EMBODIED_CARBON: true,
@@ -116,6 +175,12 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   const rowRefs = useRef([]);
+
+  const handleRetryWebgl = () => {
+    const isAvail = isWebGLAvailable();
+    setWebglAvailable(isAvail);
+    setRetryCount((c) => c + 1);
+  };
 
   // Check prefers-reduced-motion
   useEffect(() => {
@@ -183,53 +248,89 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
           {/* Left Column: 3D Viewer Panel (Sticky) */}
           <div className="ms-viewer-wrapper">
             <div className="ms-viewer-panel">
-              <Canvas
-                className="ms-canvas"
-                camera={{ position: [2.0, 1.3, 3.2], fov: 36 }}
-                dpr={[1, 1.5]}
-                shadows
-                resize={{ debounce: 0, scroll: false }}
-                gl={{ powerPreference: 'high-performance', antialias: true }}
-                aria-label="Interactive 3D model of a compressed stabilized earth block"
-                style={{ touchAction: 'pan-y' }}
+              <WebGLErrorBoundary
+                fallback={({ onRetry }) => (
+                  <CSEBFallbackViewer
+                    activeSpec={activeSpec}
+                    stacked={stacked}
+                    onRetry={() => {
+                      handleRetryWebgl();
+                      onRetry();
+                    }}
+                  />
+                )}
               >
-                <ambientLight intensity={1.3} color="#fff6ed" />
-                <directionalLight
-                  position={[4.5, 5.5, 3.5]}
-                  intensity={2.6}
-                  color="#ffffff"
-                  castShadow
-                  shadow-mapSize-width={1024}
-                  shadow-mapSize-height={1024}
-                  shadow-bias={-0.0001}
-                />
-                <directionalLight position={[-3.5, 2.5, -2.5]} intensity={0.9} color="#e8af84" />
-                <pointLight position={[0, -1.8, 2.5]} intensity={0.5} color="#b5532d" />
+                {webglAvailable ? (
+                  <Canvas
+                    key={`ms-canvas-${retryCount}`}
+                    className="ms-canvas"
+                    camera={{ position: [2.0, 1.3, 3.2], fov: 36 }}
+                    dpr={[1, 1.5]}
+                    shadows
+                    resize={{ debounce: 0, scroll: false }}
+                    gl={{ powerPreference: 'default', antialias: true, failIfMajorPerformanceCaveat: false }}
+                    onCreated={({ gl }) => {
+                      gl.domElement.addEventListener(
+                        'webglcontextlost',
+                        (event) => {
+                          event.preventDefault();
+                          console.warn('[MaterialStudio] WebGL context lost.');
+                        },
+                        false
+                      );
+                    }}
+                    aria-label="Interactive 3D model of a compressed stabilized earth block"
+                    style={{ touchAction: 'pan-y' }}
+                  >
+                    <ambientLight intensity={1.3} color="#fff6ed" />
+                    <directionalLight
+                      position={[4.5, 5.5, 3.5]}
+                      intensity={2.6}
+                      color="#ffffff"
+                      castShadow
+                      shadow-mapSize-width={1024}
+                      shadow-mapSize-height={1024}
+                      shadow-bias={-0.0001}
+                    />
+                    <directionalLight position={[-3.5, 2.5, -2.5]} intensity={0.9} color="#e8af84" />
+                    <pointLight position={[0, -1.8, 2.5]} intensity={0.5} color="#b5532d" />
 
-                <Model3D
-                  activeSpec={activeSpec}
-                  stacked={stacked}
-                  reducedMotion={reducedMotion}
-                />
+                    <Model3D
+                      activeSpec={activeSpec}
+                      stacked={stacked}
+                      reducedMotion={reducedMotion}
+                    />
 
-                <OrbitControls
-                  enableZoom={false}
-                  enablePan={false}
-                  enableDamping={true}
-                  dampingFactor={0.06}
-                  autoRotate={!reducedMotion}
-                  autoRotateSpeed={0.7}
-                  minPolarAngle={Math.PI / 4}
-                  maxPolarAngle={Math.PI / 2 + 0.08}
-                />
-              </Canvas>
+                    <OrbitControls
+                      enableZoom={false}
+                      enablePan={false}
+                      enableDamping={true}
+                      dampingFactor={0.06}
+                      autoRotate={!reducedMotion}
+                      autoRotateSpeed={0.7}
+                      minPolarAngle={Math.PI / 4}
+                      maxPolarAngle={Math.PI / 2 + 0.08}
+                    />
+                  </Canvas>
+                ) : (
+                  <CSEBFallbackViewer
+                    activeSpec={activeSpec}
+                    stacked={stacked}
+                    onRetry={handleRetryWebgl}
+                  />
+                )}
+              </WebGLErrorBoundary>
 
               {/* Viewer Footer Strip */}
               <div className="ms-viewer-footer">
                 <div className="ms-viewer-hint">
                   <span className="ms-dot" aria-hidden="true" />
-                  <span className="ms-hint-text-desktop">Rotate 360° to inspect tactile layers</span>
-                  <span className="ms-hint-text-mobile">360° Rotate</span>
+                  <span className="ms-hint-text-desktop">
+                    {webglAvailable ? 'Rotate 360° to inspect tactile layers' : 'Tactile block strata view'}
+                  </span>
+                  <span className="ms-hint-text-mobile">
+                    {webglAvailable ? '360° Rotate' : 'Tactile View'}
+                  </span>
                 </div>
 
                 <button

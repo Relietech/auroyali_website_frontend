@@ -1,113 +1,200 @@
 export const projectsData = [
   {
-    id: "lakshmi-training-centre",
-    slug: "lakshmi-training-centre",
-    title: "Lakshmi Training Centre",
-    subtitle: "Auroville Skill & Natural Construction Academy",
-    category: "Institutional / Educational",
-    location: "Auroville, Tamil Nadu",
-    year: "2021",
-    area: "8,500 sq.ft",
-    status: "Completed",
-    materials: ["Compressed Stabilized Earth Blocks (CSEB)", "Treated Bamboo Trusses", "Kota Stone", "Terracotta Tiles"],
-    heroImage: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80"
-    ],
-    overview: "Commissioned as an experiential vocational training campus in Auroville, the Lakshmi Training Centre exemplifies the harmony between raw earth masonry and hyperbolic bamboo roofing. Its central vaulted hall requires zero artificial cooling during humid coastal summers.",
-    bioclimaticFeatures: [
-      "North-South building orientation capturing dominant Bay of Bengal sea breezes",
-      "Perforated CSEB Jali walls filtering intense tropical sunlight into soft diffused ambient light",
-      "Rooftop rainwater collection directed to a 120,000L subterranean recharge cistern",
-      "Earth thermal mass keeping indoor temperatures 6°C cooler than ambient outside"
-    ],
-    client: "Auroville Foundation Educational Trust",
-    scope: "Architecture, CSEB Production, Bamboo Structural Engineering, Turnkey Construction"
-  },
-  {
-    id: "courtyard-house",
-    slug: "courtyard-house",
-    title: "Courtyard House",
-    subtitle: "Passive Solar Eco-Residence",
+    id: "alains-residence",
+    slug: "alains-residence",
+    title: "Alain's Residence",
+    titleParts: {
+      prefix: "Alain's -",
+      highlight: "RESIDENCE, PRARTHANA,",
+      suffix: "Auroville"
+    },
+    subtitle: "Residential Extension & Circulation Transformation",
     category: "Residential",
-    location: "Kottakarai, Auroville",
-    year: "2022",
-    area: "4,200 sq.ft",
-    status: "Completed",
-    materials: ["Stabilized Rammed Earth", "Reclaimed Teak Wood", "Exposed Oxide Plasters", "Brass Accents"],
-    heroImage: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1200&q=80"
-    ],
-    overview: "Organized around a tranquil central water courtyard, this residence reimagines traditional Tamil courtyard homes (Thinnai & Mutram) with contemporary architectural elegance. Thick rammed earth walls and open louvers establish a naturally breathing sanctuary.",
-    bioclimaticFeatures: [
-      "Central evaporative cooling courtyard with native water lilies and lotus pond",
-      "Deep verandahs (overhangs of 2.2m) preventing direct solar heat gain on perimeter walls",
-      "Greywater filtration through root-zone phyto-purification reed beds",
-      "Solar rooftop 6kW micro-grid generating 100% of household energy needs"
-    ],
-    client: "Private Eco-Conscious Family",
-    scope: "Architectural Design, Rammed Earth Construction, Interior Millwork"
-  },
-  {
-    id: "guest-house-for-seeds",
-    slug: "guest-house-for-seeds",
-    title: "Guest House for Seeds",
-    subtitle: "Bio-dynamic Sanctuary & Seed Bank Retreat",
-    category: "Hospitality & Ecology",
-    location: "International Zone, Auroville",
+    location: "Prarthana Community, Auroville",
+    area: "60 m² (650 sq.ft)",
+    timeTaken: "6 months",
     year: "2023",
-    area: "6,800 sq.ft",
-    status: "Completed",
-    materials: ["Interlocking CSEB", "Weathering Corten Steel", "Bamboo Lattice", "Lime Stucco"],
-    heroImage: "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1600&q=80",
+    architect: "Sindhuja & Michael, Imago Auroville",
+    construction: "AuroYali",
+    client: "Alain & Family",
+    heroImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=85",
     gallery: [
-      "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=1200&q=80"
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1400&q=85"
     ],
-    overview: "Built as a living bridge between indigenous seed preservation and eco-tourism, the Guest House for Seeds features an earth-dome seed repository surrounded by eight guest pavilions connected by raised timber boardwalks winding through a regenerated tropical dry evergreen forest.",
-    bioclimaticFeatures: [
-      "Underground Earth Air Tunnel (EAT) passive geocooling system delivering 22°C fresh air",
-      "Permeable foundation preserving natural groundwater aquifers and tree roots",
-      "Zero cement in superstructures — lime pozzolana binding throughout",
-      "Living green roofs planted with drought-tolerant indigenous grasses"
-    ],
-    client: "Auroville Agro-Ecology Collective",
-    scope: "Master Planning, Bioclimatic Engineering, Natural Masonry, Carpentry"
+    about: "This house was designed by a different architect initially: a single bedroom, 2-storey structure for one person. 2 bedrooms and a bathroom were added to this structure for the client to accommodate his new family. The existing living room was transformed into a circulation hub, the kitchen was extended into a semi-open one with a bar counter. The mangalore tile-covered verandah leading to the living hub will be a shaded family hangout space. A reinforced concrete slab terrace between the two bedrooms presents a scenic view of the night sky. The ant channel around the house prevents insects from entering the house. The compact new bathroom with its low ceiling was finished with blue oxide flooring and Kadappa shelf.",
+    materials: ["Mangalore Roof Tiles", "Blue Oxide Flooring", "Kadappa Stone Shelves", "Timber Verandah Framing", "Reinforced Slab Terrace"]
   },
   {
-    id: "bamboo-pavilion-dome",
-    slug: "bamboo-pavilion-dome",
-    title: "Auroville Bamboo Research Pavilion",
-    subtitle: "Reciprocal Tensile Geodesic Structure",
-    category: "Experimental / Civic",
-    location: "Kottakarai Forest, Auroville",
-    year: "2024",
-    area: "3,100 sq.ft",
-    status: "Completed",
-    materials: ["Dendrocalamus Strictus Bamboo", "Cast Steel Nodes", "Tensile PTFE Membrane", "Poured Lime Slab"],
-    heroImage: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1600&q=80",
+    id: "onella-residence",
+    slug: "onella-residence",
+    title: "Onella Residence",
+    titleParts: {
+      prefix: "Onella -",
+      highlight: "RESIDENCE, HOSUR,",
+      suffix: "Tamil Nadu"
+    },
+    subtitle: "Earthen Eco-Residence & Verandah Living",
+    category: "Residential",
+    location: "Hosur, Tamil Nadu",
+    area: "227 m² (2,450 sq.ft)",
+    timeTaken: "2 years",
+    year: "2023",
+    architect: "Ar. Srinath Gowtham & Ar. Vinoth Kumar, Bhutha Earthen Architecture Studio",
+    construction: "AuroYali",
+    client: "Onella Family",
+    heroImage: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85",
     gallery: [
-      "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80"
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1400&q=85"
     ],
-    overview: "An ultra-lightweight structural research pavilion showcasing hyperbolic paraboloid bamboo joinery capable of withstanding cyclonic gusts up to 160 km/h with negative carbon footprint.",
-    bioclimaticFeatures: [
-      "Aerodynamic self-cooling vortex geometry",
-      "100% biodegradable and recyclable structural elements",
-      "Integrated micro-sprinklers for evaporative boundary layer cooling",
-      "Sub-millimeter CNC joint connectors fabricated in-house"
+    about: "A spacious 227 sq.m contemporary earthen residence in Hosur designed in collaboration with Bhutha Earthen Architecture Studio. The home focuses on thermal comfort with rammed earth walls, stabilized mud plastering, deep shaded verandahs, and natural ventilation corridors designed to buffer the harsh regional climate.",
+    materials: ["Stabilized Rammed Earth", "Natural Mud Plaster", "Terracotta Tiles", "Reclaimed Timber", "Granite Thresholds"]
+  },
+  {
+    id: "timber-vault-construction",
+    slug: "timber-vault-construction",
+    title: "Timber Vault Construction",
+    titleParts: {
+      prefix: "Timber -",
+      highlight: "VAULT CONSTRUCTION, SILK ROAD,",
+      suffix: "Bangalore"
+    },
+    subtitle: "Large-Span Reciprocal Curved Wooden Arch Structure",
+    category: "Commercial & Structural",
+    location: "Silk Road, Bangalore",
+    area: "4,000 sq.ft",
+    timeTaken: "8 months",
+    year: "2024",
+    architect: "Ar. Booma",
+    construction: "AuroYali",
+    client: "Trifecta Project Private Limited",
+    heroImage: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1800&q=85",
+    gallery: [
+      "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1400&q=85"
     ],
-    client: "Sustainable Habitat Laboratory",
-    scope: "Parametric Design, Bamboo Joinery Fabrication, Tensile Engineering"
+    about: "Commissioned by Trifecta Project Private Limited on Silk Road, Bangalore, this 4,000 sq.ft timber vault showcases precision carpentry and reciprocal arch engineering. The large span provides column-free usable floor area with soaring wooden ribs, warm natural lighting, and superior acoustic damping.",
+    materials: ["Structural Timber Ribs", "Engineered Wood Joinery", "High-Tensile Fasteners", "Polished Concrete Floor"]
+  },
+  {
+    id: "agilan-residence",
+    slug: "agilan-residence",
+    title: "Agilan Residence",
+    titleParts: {
+      prefix: "Agilan -",
+      highlight: "RESIDENCE,",
+      suffix: "Moratandi"
+    },
+    subtitle: "Sustainable Turnkey Natural Brick Home",
+    category: "Residential",
+    location: "Moratandi",
+    area: "2,800 sq.ft",
+    timeTaken: "10 months",
+    year: "2023",
+    architect: "AuroYali",
+    construction: "AuroYali",
+    client: "Mr. Agilan & Siva Bharathi",
+    heroImage: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1800&q=85",
+    gallery: [
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1400&q=85"
+    ],
+    about: "A turnkey residential design and construction project for Mr. Agilan and Siva Bharathi at Moratandi. Designed and executed by AuroYali, the home balances modern living with sustainable earth construction, featuring natural CSEB masonry, breezy open courtyards, and artisanal timber millwork.",
+    materials: ["CSEB Earth Blocks", "Natural Lime Plasters", "Custom Timber Millwork", "Terracotta Pavers"]
+  },
+  {
+    id: "lakshmi-training-center",
+    slug: "lakshmi-training-center",
+    title: "Lakshmi Training Center",
+    titleParts: {
+      prefix: "Lakshmi -",
+      highlight: "TRAINING CENTER, NAVARKULAM,",
+      suffix: "Pondicherry"
+    },
+    subtitle: "Educational Craft & Masonry Academy",
+    category: "Institutional",
+    location: "Navarkulam, Pondicherry",
+    area: "3,600 sq.ft",
+    timeTaken: "12 months",
+    year: "2022",
+    architect: "AuroYali",
+    construction: "AuroYali",
+    client: "Mr. Karthikeyan & Mrs. Lakshmi",
+    heroImage: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1800&q=85",
+    gallery: [
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1400&q=85"
+    ],
+    about: "Designed and built by AuroYali for Mr. Karthikeyan & Mrs. Lakshmi in Navarkulam, Pondicherry. The academy features open-plan workshop pavilions, vaulted earth masonry arches, and natural airflow corridors suited for training next-generation craftspeople in sustainable building practices.",
+    materials: ["Compressed Stabilized Earth Blocks", "Bamboo Trusses", "Kota Stone", "Terracotta Roofing"]
+  },
+  {
+    id: "murali-residence",
+    slug: "murali-residence",
+    title: "Murali Residence",
+    titleParts: {
+      prefix: "Murali -",
+      highlight: "RESIDENCE,",
+      suffix: "Pondicherry"
+    },
+    subtitle: "Coastal Courtyard Family Sanctuary",
+    category: "Residential",
+    location: "Pondicherry",
+    area: "3,200 sq.ft",
+    timeTaken: "9 months",
+    year: "2023",
+    architect: "Ar. Mansee",
+    construction: "AuroYali",
+    client: "Mr. Murali & Mrs. Jayashree",
+    heroImage: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1800&q=85",
+    gallery: [
+      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=85"
+    ],
+    about: "Constructed by AuroYali with architectural design by Ar. Mansee for Mr. Murali and Mrs. Jayashree in Pondicherry. The residence celebrates warm coastal vernacular architecture with handcrafted brick details, natural ventilation shafts, polished oxide floors, and custom timber cabinetry.",
+    materials: ["Exposed Brick Masonry", "Red & Yellow Oxide Flooring", "Reclaimed Teak Millwork", "Cast Terracotta Jali"]
+  },
+  {
+    id: "cseb-brick-work-projects",
+    slug: "cseb-brick-work-projects",
+    title: "CSEB Brick Work Projects",
+    titleParts: {
+      prefix: "CSEB -",
+      highlight: "BRICK WORK PROJECTS,",
+      suffix: "Auroville"
+    },
+    subtitle: "Compressed Stabilized Earth Block Masonry & Vaults",
+    category: "Specialized Craft",
+    location: "Auroville & Tamil Nadu",
+    area: "Multi-site Portfolio",
+    timeTaken: "Ongoing",
+    year: "2024",
+    architect: "AuroYali Collective",
+    construction: "AuroYali",
+    client: "Various Ecological & Institutional Clients",
+    heroImage: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1800&q=85",
+    gallery: [
+      "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1400&q=85"
+    ],
+    about: "A dedicated showcase of AuroYali's specialized CSEB (Compressed Stabilized Earth Block) brick manufacturing and structural masonry across Auroville and Tamil Nadu. Features precision dry-stack interlocking blocks, arched openings, vaulted ceilings, and breathable earthen walls.",
+    materials: ["Interlocking CSEB Blocks", "Lime Pozzolana Mortar", "Curved Arch Vaults", "Natural Earth Finishes"]
   }
 ];

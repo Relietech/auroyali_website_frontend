@@ -139,7 +139,7 @@ export function SpotlightCarousel({
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.2}
               onDragEnd={isCenter ? handleDragEnd : undefined}
-              className={`absolute w-[220px] sm:w-[300px] h-[300px] sm:h-[410px] rounded-3xl overflow-hidden cursor-pointer transition-shadow duration-500 bg-earth-900 border flex flex-col justify-end ${
+              className={`group absolute w-[220px] sm:w-[300px] h-[300px] sm:h-[410px] rounded-3xl overflow-hidden cursor-pointer transition-shadow duration-500 bg-earth-900 border flex flex-col justify-end ${
                 isCenter
                   ? 'border-clay/90 shadow-[0_20px_50px_rgba(200,90,50,0.22)] ring-4 ring-clay/25 cursor-grab active:cursor-grabbing'
                   : 'border-earth-200/90 shadow-md hover:opacity-80'
@@ -160,11 +160,9 @@ export function SpotlightCarousel({
                   className="w-full h-full object-cover"
                 />
                 
-                {/* Bottom dark gradient overlay to ensure text contrast without blocking faces */}
+                {/* Bottom dark gradient overlay: Revealed on hover */}
                 <div 
-                  className={`absolute inset-0 bg-gradient-to-t from-earth-950/95 via-earth-950/40 to-transparent transition-opacity duration-500 ${
-                    isCenter ? 'opacity-100' : 'opacity-40'
-                  }`} 
+                  className="absolute inset-0 bg-gradient-to-t from-earth-950/95 via-earth-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
                 />
 
                 {/* Subtle top specular sheen on center card */}
@@ -173,11 +171,9 @@ export function SpotlightCarousel({
                 )}
               </div>
 
-              {/* Bottom Text Overlay: Role & Name pinned to the bottom */}
+              {/* Bottom Text Overlay: Revealed on hover only */}
               <div 
-                className={`relative z-10 p-6 text-white transition-all duration-500 ease-out pointer-events-none ${
-                  isCenter ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-                }`}
+                className="relative z-10 p-6 text-white opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none"
               >
                 {person.role && (
                   <span className="text-xs font-mono text-clay-300 block uppercase tracking-wider font-semibold">

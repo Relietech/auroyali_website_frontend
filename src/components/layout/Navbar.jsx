@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { Menu, ChevronDown } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import { siteInfo } from '../../data/siteInfo';
 import { ServicesDropdown } from './ServicesDropdown';
 import { MobileMenu } from './MobileMenu';
@@ -30,9 +31,6 @@ export function Navbar() {
               <div className="flex flex-col">
                 <span className="font-heading text-xl sm:text-2xl font-bold tracking-[0.15em] sm:tracking-[0.2em] text-earth-900 leading-none">
                   AUROYALI
-                </span>
-                <span className="text-[9px] sm:text-[10px] tracking-wider sm:tracking-widest uppercase text-earth-700 font-sans font-medium mt-0.5 whitespace-nowrap">
-                  Auroville Architecture
                 </span>
               </div>
             </Link>
@@ -68,13 +66,25 @@ export function Navbar() {
                 onMouseLeave={() => setIsServicesOpen(false)}
               >
                 <button
-                  className="nav-link flex items-center gap-1.5 py-1 text-earth-900 font-medium hover:text-clay transition-colors"
+                  type="button"
+                  onClick={() => setIsServicesOpen((prev) => !prev)}
+                  className={`nav-link flex items-center gap-1.5 py-1 font-medium transition-colors ${
+                    isServicesOpen ? 'text-clay font-bold' : 'text-earth-900 hover:text-clay'
+                  }`}
                 >
-                  Services <ChevronDown size={14} className={`transition-transform duration-200 ${isServicesOpen ? 'rotate-180 text-clay' : ''}`} />
+                  Services{' '}
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform duration-200 ${
+                      isServicesOpen ? 'rotate-180 text-clay' : ''
+                    }`}
+                  />
                 </button>
-                {isServicesOpen && (
-                  <ServicesDropdown onClose={() => setIsServicesOpen(false)} />
-                )}
+                <AnimatePresence>
+                  {isServicesOpen && (
+                    <ServicesDropdown onClose={() => setIsServicesOpen(false)} />
+                  )}
+                </AnimatePresence>
               </div>
 
               <NavLink
@@ -123,8 +133,9 @@ export function Navbar() {
 
             {/* Mobile Menu Toggle Button */}
             <button
-              onClick={() => setIsMobileOpen(true)}
-              className="flex lg:hidden items-center justify-center w-10 h-10 rounded-full bg-earth-200/90 text-earth-900 hover:bg-clay hover:text-white border border-earth-300/80 shadow-sm shrink-0 active:scale-95 transition-all z-10"
+              type="button"
+              onClick={() => setIsMobileOpen((prev) => !prev)}
+              className="flex lg:hidden items-center justify-center w-10 h-10 rounded-full bg-earth-200/90 text-earth-900 hover:bg-clay hover:text-white border border-earth-300/80 shadow-sm shrink-0 active:scale-95 transition-all z-10 cursor-pointer"
               aria-label="Open Navigation Menu"
             >
               <Menu size={22} className="stroke-[2.2]" />
@@ -133,7 +144,9 @@ export function Navbar() {
         </div>
       </header>
 
-      <MobileMenu isOpen={isMobileOpen} onClose={() => setIsMobileOpen(false)} />
+      <AnimatePresence>
+        {isMobileOpen && <MobileMenu isOpen={isMobileOpen} onClose={() => setIsMobileOpen(false)} />}
+      </AnimatePresence>
     </>
   );
 }

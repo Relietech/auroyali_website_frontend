@@ -48,7 +48,7 @@ export function AboutUs() {
               {/* Features: Mobile Carousel / Desktop 2-Col Grid */}
               <div className="pt-4">
                 <div 
-                  className="flex sm:grid sm:grid-cols-2 gap-3.5 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 px-1 sm:px-0 snap-x snap-mandatory scroll-smooth"
+                  className="flex sm:grid sm:grid-cols-2 gap-3.5 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 px-1 sm:px-0 snap-x snap-mandatory scroll-smooth no-scrollbar"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   <motion.div 
