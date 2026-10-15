@@ -2,8 +2,10 @@ import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
-import { Sun, Sunset, Moon, Layers, RefreshCw } from 'lucide-react';
+import { Sun, Sunset, Moon, Layers, RefreshCw, Box } from 'lucide-react';
 import { WebGLErrorBoundary, isWebGLAvailable } from './WebGLErrorBoundary';
+import { UploadedModelViewer } from './UploadedModelViewer';
+import { getHero3DConfig, getActiveModelBlobUrl, subscribeToHero3D } from '../../services/hero3DStore';
 
 // ==========================================
 // PROCEDURAL ARCHITECTURAL TEXTURES GENERATOR
@@ -139,7 +141,7 @@ function ResponsiveCameraController() {
 // ==========================================
 // REALISTIC HIGH-END BIOCLIMATIC VILLA
 // ==========================================
-function RealisticVilla({ mode, wireframe }) {
+export function RealisticVilla({ mode, wireframe }) {
   const poolRef = useRef();
   const textures = useProceduralTextures();
 
@@ -721,12 +723,47 @@ function HeroArchitecturalFallback({ mode, wireframe, onRetry }) {
 // MAIN HERO 3D CANVAS COMPONENT
 // ==========================================
 export function Hero3DCanvas({ className = "" }) {
-  const [mode, setMode] = useState('sunset');
+  const [heroConfig, setHeroConfig] = useState(() => getHero3DConfig());
+  const [customModelUrl, setCustomModelUrl] = useState(null);
+  const [modelLoadError, setModelLoadError] = useState(false);
+  const [mode, setMode] = useState(() => getHero3DConfig().defaultLightingMode || 'sunset');
   const [wireframe, setWireframe] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [webglAvailable, setWebglAvailable] = useState(() => isWebGLAvailable());
   const [retryCount, setRetryCount] = useState(0);
+
+  // Sync with hero3DStore and load binary model URL
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadModel() {
+      try {
+        const url = await getActiveModelBlobUrl();
+        if (isMounted) {
+          setCustomModelUrl(url);
+          setModelLoadError(false);
+        }
+      } catch (err) {
+        console.warn('[Hero3DCanvas] Could not load active model URL:', err);
+      }
+    }
+
+    loadModel();
+
+    const unsubscribe = subscribeToHero3D((newConfig) => {
+      setHeroConfig(newConfig);
+      if (newConfig.defaultLightingMode) {
+        setMode(newConfig.defaultLightingMode);
+      }
+      loadModel();
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
 
   const handleRetryWebgl = () => {
     const isAvail = isWebGLAvailable();
@@ -738,6 +775,9 @@ export function Hero3DCanvas({ className = "" }) {
     if (autoRotate) setAutoRotate(false);
     if (!hasInteracted) setHasInteracted(true);
   };
+
+  const isCustomActive =
+    heroConfig.activeSource !== 'default' && Boolean(customModelUrl) && !modelLoadError;
 
   return (
     <div
@@ -801,11 +841,23 @@ export function Hero3DCanvas({ className = "" }) {
               color={mode === 'sunset' ? '#b45309' : mode === 'night' ? '#38bdf8' : '#7a8b69'}
             />
 
-            {/* Architectural 3D Villa */}
-            <RealisticVilla
-              mode={mode}
-              wireframe={wireframe}
-            />
+            {/* Render either admin-uploaded custom 3D model or procedural villa */}
+            {isCustomActive ? (
+              <UploadedModelViewer
+                modelUrl={customModelUrl}
+                scale={heroConfig.scale || 1.0}
+                rotationY={heroConfig.rotationY || 0}
+                posY={heroConfig.posY || 0}
+                mode={mode}
+                wireframe={wireframe}
+                onError={() => setModelLoadError(true)}
+              />
+            ) : (
+              <RealisticVilla
+                mode={mode}
+                wireframe={wireframe}
+              />
+            )}
 
             {/* Soft Ground Contact Shadow */}
             <ContactShadows
@@ -825,8 +877,8 @@ export function Hero3DCanvas({ className = "" }) {
               target={[0, 0.75, 0]}
               minPolarAngle={Math.PI / 5.2}
               maxPolarAngle={Math.PI / 2.18}
-              autoRotate={autoRotate}
-              autoRotateSpeed={0.8}
+              autoRotate={autoRotate && (heroConfig.autoRotate ?? true)}
+              autoRotateSpeed={heroConfig.autoRotateSpeed ?? 0.8}
               onStart={handleStartInteraction}
             />
           </Canvas>
@@ -916,6 +968,16 @@ export function Hero3DCanvas({ className = "" }) {
         </svg>
         <span className="text-[11.5px] font-medium text-stone-100 tracking-wide select-none">360° Drag to Rotate</span>
       </div>
+
+      {/* Floating Active Custom Model Badge */}
+      {isCustomActive && (
+        <div className="absolute top-4 right-4 sm:top-auto sm:bottom-4 sm:right-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-900/90 text-amber-200 border border-amber-400/30 text-[11px] font-mono shadow-md backdrop-blur-md">
+          <Box size={13} className="text-amber-400 animate-pulse shrink-0" />
+          <span className="truncate max-w-[140px] sm:max-w-[200px]">
+            {heroConfig.modelName || 'Uploaded 3D Architecture'}
+          </span>
+        </div>
+      )}
 
     </div>
   );

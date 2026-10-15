@@ -15,6 +15,7 @@ import {
   Compass
 } from 'lucide-react';
 import { siteInfo } from '../../data/siteInfo';
+import { createLead } from '../../services/leadStore';
 
 const projectTypes = [
   { id: "residential", label: "Residential Eco-Villa", icon: Home },
@@ -42,11 +43,31 @@ export function ArchitectureConsultationForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate submission
+
+    const selectedTypeObj = projectTypes.find(t => t.id === projectType);
+    try {
+      createLead({
+        category: 'architecture',
+        source: 'Studio Consultation (/architecture)',
+        title: `${selectedTypeObj?.label || 'Architectural Project'} Consultation`,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        location: formData.location || 'Not specified',
+        plotArea: formData.plotArea ? `${formData.plotArea} sq.ft.` : '',
+        timeline: formData.timeline,
+        service: selectedTypeObj?.label || 'Architectural Design',
+        message: formData.message,
+        priority: 'high'
+      });
+    } catch (err) {
+      console.error('Error logging consultation lead:', err);
+    }
+
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitted(true);
-    }, 800);
+    }, 700);
   };
 
   return (

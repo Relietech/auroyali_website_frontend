@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { projectsData } from '../data/projects';
+import { getStoredProjects } from '../services/projectStore';
 import { SingleProjectFixedReveal } from '../components/projects/SingleProjectFixedReveal';
 import { 
   ArrowLeft, 
@@ -17,14 +18,15 @@ export function ProjectDetail() {
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [isGridViewOpen, setIsGridViewOpen] = useState(false);
 
-  // Find project index and object
-  const currentIndex = projectsData.findIndex((p) => p.slug === slug);
-  const project = currentIndex !== -1 ? projectsData[currentIndex] : projectsData[0];
-  const totalProjects = projectsData.length;
+  // Find project index and object from persistent store
+  const allProjects = getStoredProjects();
+  const currentIndex = allProjects.findIndex((p) => p.slug === slug || p.id === slug);
+  const project = currentIndex !== -1 ? allProjects[currentIndex] : (allProjects[0] || projectsData[0]);
+  const totalProjects = allProjects.length || 1;
 
   // Next and Previous projects
-  const prevProject = projectsData[(currentIndex - 1 + totalProjects) % totalProjects];
-  const nextProject = projectsData[(currentIndex + 1) % totalProjects];
+  const prevProject = allProjects[(currentIndex - 1 + totalProjects) % totalProjects];
+  const nextProject = allProjects[(currentIndex + 1) % totalProjects];
 
   // Scroll to top on slug change
   useEffect(() => {

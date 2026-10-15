@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { 
   Users, 
@@ -15,6 +15,7 @@ import {
   CSEB_PRODUCTION_SECTION, 
   CARETAKERS_SECTION 
 } from '../../data/teamData';
+import { getStoredTeamData, subscribeToTeam } from '../../services/teamStore';
 import { SkewedCarousel } from '../ui/SkewedCarousel';
 import { Masonry } from '../ui/Masonry';
 import { SpotlightCarousel } from '../ui/SpotlightCarousel';
@@ -351,19 +352,34 @@ function SectionBrickDivider() {
 }
 
 export function MeetOurTeam() {
+  const [teamState, setTeamState] = useState(() => getStoredTeamData());
   const [imageErrorMap, setImageErrorMap] = useState({});
 
-  // Parallax banner
-  const bannerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: bannerRef,
-    offset: ["start end", "end start"]
-  });
-  const bannerParallaxY = useTransform(scrollYProgress, [0, 1], [-40, 40]);
+  useEffect(() => {
+    const unsubscribe = subscribeToTeam((updated) => {
+      setTeamState(updated);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleImageError = (id) => {
     setImageErrorMap(prev => ({ ...prev, [id]: true }));
   };
+
+  // Safe fallback extractions
+  const management = teamState?.management || MANAGEMENT_SECTION;
+  const administration = teamState?.administration || ADMINISTRATION_SECTION;
+  const siteEngineers = teamState?.siteEngineers || SITE_ENGINEERS_SECTION;
+  const artisans = teamState?.artisans || ARTISANS_SECTION;
+  const csebProduction = teamState?.csebProduction || CSEB_PRODUCTION_SECTION;
+  const caretakers = teamState?.caretakers || CARETAKERS_SECTION;
+
+  // Normalize site engineers list
+  const siteEngineersList = Array.isArray(siteEngineers.members)
+    ? siteEngineers.members
+    : siteEngineers.member
+    ? [siteEngineers.member]
+    : [];
 
   return (
     <section className="py-12 sm:py-32 bg-earth-50 text-earth-950 relative overflow-hidden" id="meet-our-team">
@@ -420,7 +436,7 @@ export function MeetOurTeam() {
         </div>
 
         {/* ======================================================== */}
-        {/* 1. MANAGEMENT SECTION */}
+        {/* 1. MANAGEMENT SECTION (LEADERSHIP) */}
         {/* ======================================================== */}
         <div id="team-management">
           <SubSectionHeader title="Leadership" />
@@ -428,7 +444,8 @@ export function MeetOurTeam() {
           {/* Skewed Carousel for Leadership Team */}
           <div className="relative -mx-4 sm:-mx-6 lg:-mx-8">
             <SkewedCarousel 
-              items={MANAGEMENT_SECTION.members} 
+              key={`mgmt-${(management.members || []).length}`}
+              items={management.members || []} 
               skewAngle={-3.5} 
               baseVelocity={-1.2} 
             />
@@ -446,13 +463,13 @@ export function MeetOurTeam() {
           <SubSectionHeader title="Administration" />
 
           {/* Symmetrical Converging Cards with 3D Tilt, Curtain Reveal & Info Reveal */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto overflow-hidden sm:overflow-visible">
-            {ADMINISTRATION_SECTION.members.map((admin, idx) => (
+          <div className={`grid grid-cols-1 ${(administration.members || []).length > 1 ? 'sm:grid-cols-2' : ''} gap-6 max-w-3xl mx-auto overflow-hidden sm:overflow-visible`}>
+            {(administration.members || []).map((admin, idx) => (
               <AdminTiltCard
                 key={admin.id}
                 admin={admin}
                 idx={idx}
-                isLeft={idx === 0}
+                isLeft={idx % 2 === 0}
                 imageErrorMap={imageErrorMap}
                 handleImageError={handleImageError}
               />
@@ -470,38 +487,41 @@ export function MeetOurTeam() {
         <div id="team-site-engineers">
           <SubSectionHeader title="Site Engineers" />
 
-          {/* Single Centered Spotlight Card */}
-          <div className="max-w-sm mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -6, transition: { duration: 0.25 } }}
-              className="group relative rounded-3xl bg-earth-900 border border-earth-200/90 hover:border-sage/70 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-80 sm:h-96 flex flex-col justify-end"
-            >
-              {/* Photo Background */}
-              <div className="absolute inset-0 overflow-hidden bg-earth-200">
-                <img 
-                  src={imageErrorMap[SITE_ENGINEERS_SECTION.member.id] ? FALLBACK_AVATAR : SITE_ENGINEERS_SECTION.member.image}
-                  alt={SITE_ENGINEERS_SECTION.member.name}
-                  onError={() => handleImageError(SITE_ENGINEERS_SECTION.member.id)}
-                  loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108 brightness-95 group-hover:brightness-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-earth-950/95 via-earth-950/45 to-transparent transition-opacity duration-300" />
-              </div>
+          {/* Single Centered Spotlight Card or Grid for Multiple Site Engineers */}
+          <div className={`mx-auto ${siteEngineersList.length > 1 ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl' : 'max-w-sm'}`}>
+            {siteEngineersList.map((engineer) => (
+              <motion.div
+                key={engineer.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -6, transition: { duration: 0.25 } }}
+                className="group relative rounded-3xl bg-earth-900 border border-earth-200/90 hover:border-sage/70 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-80 sm:h-96 flex flex-col justify-end"
+              >
+                {/* Photo Background */}
+                <div className="absolute inset-0 overflow-hidden bg-earth-200">
+                  <img 
+                    src={imageErrorMap[engineer.id] ? FALLBACK_AVATAR : (engineer.image || engineer.img)}
+                    alt={engineer.name}
+                    onError={() => handleImageError(engineer.id)}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108 brightness-95 group-hover:brightness-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-earth-950/95 via-earth-950/45 to-transparent transition-opacity duration-300" />
+                </div>
 
-              {/* Member Name and Role Overlay - Always visible normally */}
-              <div className="relative z-10 p-6 text-white transition-all duration-300 ease-out group-hover:-translate-y-1">
-                <span className="text-xs font-mono text-sage-300 block uppercase tracking-wider font-semibold">
-                  {SITE_ENGINEERS_SECTION.member.role}
-                </span>
-                <h4 className="font-heading text-2xl sm:text-3xl font-bold text-white leading-tight mt-0.5">
-                  {SITE_ENGINEERS_SECTION.member.name}
-                </h4>
-              </div>
-            </motion.div>
+                {/* Member Name and Role Overlay - Always visible normally */}
+                <div className="relative z-10 p-6 text-white transition-all duration-300 ease-out group-hover:-translate-y-1">
+                  <span className="text-xs font-mono text-sage-300 block uppercase tracking-wider font-semibold">
+                    {engineer.role || engineer.trade || 'Site Engineer'}
+                  </span>
+                  <h4 className="font-heading text-2xl sm:text-3xl font-bold text-white leading-tight mt-0.5">
+                    {engineer.name}
+                  </h4>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
 
@@ -518,7 +538,7 @@ export function MeetOurTeam() {
           {/* Mobile View: Interactive Artisans Carousel */}
           <div className="block md:hidden">
             <ArtisansMobileCarousel 
-              items={ARTISANS_SECTION.members} 
+              items={artisans.members || []} 
               imageErrorMap={imageErrorMap} 
               handleImageError={handleImageError} 
             />
@@ -527,7 +547,8 @@ export function MeetOurTeam() {
           {/* Desktop & Tablet View: Staggered Masonry Layout */}
           <div className="hidden md:block relative -mx-2 sm:-mx-3">
             <Masonry 
-              items={ARTISANS_SECTION.members} 
+              key={`artisans-${(artisans.members || []).length}`}
+              items={artisans.members || []} 
               ease="power3.out"
               duration={0.6}
               stagger={0.06}
@@ -562,8 +583,9 @@ export function MeetOurTeam() {
               {/* Photo Background */}
               <div className="absolute inset-0 overflow-hidden bg-earth-200">
                 <img 
-                  src={CSEB_PRODUCTION_SECTION.image} 
-                  alt={CSEB_PRODUCTION_SECTION.name}
+                  src={imageErrorMap['cseb'] ? FALLBACK_AVATAR : (csebProduction.image || csebProduction.img)} 
+                  alt={csebProduction.name}
+                  onError={() => handleImageError('cseb')}
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108 brightness-95 group-hover:brightness-105"
                 />
@@ -573,10 +595,10 @@ export function MeetOurTeam() {
               {/* Team Name Overlay */}
               <div className="relative z-10 p-6 sm:p-8 text-white transform group-hover:-translate-y-1 transition-transform duration-300">
                 <span className="text-xs font-mono text-clay-300 block uppercase tracking-wider font-medium">
-                  {CSEB_PRODUCTION_SECTION.role}
+                  {csebProduction.role}
                 </span>
                 <h4 className="font-heading text-2xl sm:text-4xl font-bold text-white leading-tight mt-0.5">
-                  {CSEB_PRODUCTION_SECTION.name}
+                  {csebProduction.name}
                 </h4>
               </div>
             </motion.div>
@@ -596,7 +618,8 @@ export function MeetOurTeam() {
           {/* Scrolltide-Style Spotlight Carousel */}
           <div className="py-2">
             <SpotlightCarousel 
-              people={CARETAKERS_SECTION.members} 
+              key={`caretakers-${(caretakers.members || []).length}`}
+              people={caretakers.members || []} 
               autoplayInterval={4000}
             />
           </div>

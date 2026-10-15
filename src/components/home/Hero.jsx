@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../common/Button';
 import { Hero3DCanvas } from '../3d/Hero3DCanvas';
 import { Leaf, Sparkles } from 'lucide-react';
+import { getHero3DConfig, subscribeToHero3D } from '../../services/hero3DStore';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -54,6 +55,39 @@ const floatOrb2 = {
 };
 
 export function Hero() {
+  const [heroConfig, setHeroConfig] = useState(() => getHero3DConfig());
+
+  useEffect(() => {
+    const unsub = subscribeToHero3D((cfg) => {
+      setHeroConfig(cfg);
+    });
+    return () => unsub();
+  }, []);
+
+  const badgeText = heroConfig.overrideHeroText && heroConfig.heroBadge
+    ? heroConfig.heroBadge
+    : 'Auroville Ecological Construction • Est. 2012';
+
+  const headlinePrefix = heroConfig.overrideHeroText && heroConfig.heroHeadlinePrefix
+    ? heroConfig.heroHeadlinePrefix
+    : 'Design.';
+
+  const headlineHighlight = heroConfig.overrideHeroText && heroConfig.heroHeadlineHighlight
+    ? heroConfig.heroHeadlineHighlight
+    : 'Build.';
+
+  const headlineSuffix = heroConfig.overrideHeroText && heroConfig.heroHeadlineSuffix
+    ? heroConfig.heroHeadlineSuffix
+    : 'Handover.';
+
+  const subtitle = heroConfig.overrideHeroText && heroConfig.heroSubtitle
+    ? heroConfig.heroSubtitle
+    : 'Living earth sanctuaries crafted from the ground beneath your feet.';
+
+  const bodyText = heroConfig.overrideHeroText && heroConfig.heroBody
+    ? heroConfig.heroBody
+    : 'From soil testing and on-site CSEB manufacturing to master bioclimatic architecture and turnkey artisanal handover — we build carbon-negative homes in harmony with climate and nature.';
+
   return (
     <section className="relative pt-20 sm:pt-22 md:pt-24 lg:pt-24 pb-6 sm:pb-10 md:pb-16 overflow-hidden bg-gradient-to-b from-earth-100/60 via-earth-50 to-earth-50">
       {/* Background Subtle Architectural Dot Matrix */}
@@ -88,16 +122,16 @@ export function Hero() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-clay opacity-75" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-clay" />
                 </span>
-                <span>Auroville Ecological Construction &bull; Est. 2012</span>
+                <span>{badgeText}</span>
               </div>
             </motion.div>
 
             {/* Main Headline */}
             <motion.div variants={itemVariants} className="space-y-2 sm:space-y-3">
               <h1 className="h1-hero text-earth-900 tracking-tight leading-[1.08] sm:leading-[1.06]">
-                Design.{' '}
+                {headlinePrefix}{' '}
                 <span className="relative inline-block text-clay italic font-normal">
-                  Build.
+                  {headlineHighlight}
                   <motion.span
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
@@ -105,10 +139,10 @@ export function Hero() {
                     className="absolute -bottom-1 left-0 right-0 h-[2px] sm:h-[3px] bg-gradient-to-r from-clay via-earth-500 to-clay origin-left rounded-full"
                   />
                 </span>{' '}
-                Handover.
+                {headlineSuffix}
               </h1>
               <p className="font-heading text-lg sm:text-xl md:text-2xl lg:text-3xl text-earth-700 font-normal leading-snug">
-                Living earth sanctuaries crafted from the ground beneath your feet.
+                {subtitle}
               </p>
             </motion.div>
 
@@ -117,7 +151,7 @@ export function Hero() {
               variants={itemVariants}
               className="body-text text-stone-700 max-w-xl font-light text-sm sm:text-base md:text-lg leading-relaxed"
             >
-              From soil testing and on-site CSEB manufacturing to master bioclimatic architecture and turnkey artisanal handover — we build carbon-negative homes in harmony with climate and nature.
+              {bodyText}
             </motion.p>
 
             {/* Action Buttons: Clean Single Line on Mobile */}

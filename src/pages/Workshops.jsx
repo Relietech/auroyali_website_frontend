@@ -11,6 +11,13 @@ import {
 } from '../data/workshopImages';
 import { workshopsData } from '../data/workshops';
 import { WorkshopEnrollModal } from '../components/workshops/WorkshopEnrollModal';
+import { 
+  getStoredOfferedWorkshops, 
+  subscribeToWorkshops,
+  getStoredGalleryItems,
+  subscribeToGallery,
+  GALLERY_CATEGORIES
+} from '../services/workshopStore';
 
 const easeCubic = [0.25, 0.1, 0.25, 1];
 
@@ -221,14 +228,6 @@ const GALLERY_ITEMS = [
   }
 ];
 
-const GALLERY_CATEGORIES = [
-  { id: 'all', label: 'All Works' },
-  { id: 'earth', label: 'Earth & CSEB' },
-  { id: 'vaults', label: 'Vaults & Shells' },
-  { id: 'bamboo', label: 'Bamboo Craft' },
-  { id: 'finishes', label: 'Natural Plasters' }
-];
-
 // Community Pillars
 const COMMUNITY_PILLARS = [
   {
@@ -249,6 +248,8 @@ const COMMUNITY_PILLARS = [
 ];
 
 export function Workshops() {
+  const [offeredWorkshops, setOfferedWorkshops] = useState(() => getStoredOfferedWorkshops());
+  const [galleryItems, setGalleryItems] = useState(() => getStoredGalleryItems());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedWorkshop, setSelectedWorkshop] = useState(workshopsData[0]);
   const [activeWhoJoinsIdx, setActiveWhoJoinsIdx] = useState(0);
@@ -257,9 +258,23 @@ export function Workshops() {
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const whoJoinsRef = useRef(null);
 
+  // Subscribe to live workshops and gallery store changes from Admin
+  useEffect(() => {
+    const unsubWorkshops = subscribeToWorkshops((updated) => {
+      setOfferedWorkshops(updated);
+    });
+    const unsubGallery = subscribeToGallery((updated) => {
+      setGalleryItems(updated);
+    });
+    return () => {
+      unsubWorkshops();
+      unsubGallery();
+    };
+  }, []);
+
   const filteredGallery = activeGalleryCat === 'all'
-    ? GALLERY_ITEMS
-    : GALLERY_ITEMS.filter(item => item.category === activeGalleryCat);
+    ? galleryItems
+    : galleryItems.filter(item => item.category === activeGalleryCat);
 
   // Keyboard navigation for Lightbox
   useEffect(() => {
@@ -588,9 +603,9 @@ export function Workshops() {
             </h2>
           </motion.div>
 
-          {/* 5 Alternating Rows from Portfolio */}
+          {/* Alternating Rows from What We Offer */}
           <div className="space-y-7 sm:space-y-10 md:space-y-12">
-            {OFFERED_WORKSHOPS.map((workshop, idx) => {
+            {offeredWorkshops.map((workshop, idx) => {
               const isEven = idx % 2 === 1;
 
               return (
@@ -763,7 +778,7 @@ export function Workshops() {
       {/* =========================================================================
           5. GALLERY SECTION ("Created")
           ========================================================================= */}
-      <section className="bg-[#FAF7F2] py-8 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section id="gallery" className="bg-[#FAF7F2] py-8 sm:py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-20">
         
         {/* Section Header & Category Filters */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 sm:mb-8">

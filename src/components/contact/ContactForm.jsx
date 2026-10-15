@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { createLead } from '../../services/leadStore';
 
 export function ContactForm({ config }) {
   const defaultServices = [
@@ -117,6 +118,22 @@ export function ContactForm({ config }) {
     }
 
     setLoading(true);
+
+    try {
+      createLead({
+        category: 'contact',
+        source: 'Contact Page (/contact)',
+        title: `${formData.service} Inquiry`,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        service: formData.service,
+        message: formData.message,
+        priority: 'normal'
+      });
+    } catch (err) {
+      console.error('Error logging contact lead:', err);
+    }
 
     // Simulated submission delay
     setTimeout(() => {

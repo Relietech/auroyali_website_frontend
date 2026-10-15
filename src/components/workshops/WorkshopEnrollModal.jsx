@@ -17,6 +17,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { workshopsData } from '../../data/workshops';
+import { createLead } from '../../services/leadStore';
 
 const easeCubic = [0.22, 1, 0.36, 1];
 
@@ -43,13 +44,18 @@ export function WorkshopEnrollModal({ isOpen, onClose, selectedWorkshop }) {
     }
   }, [selectedWorkshop]);
 
-  // Lock background scroll when modal is open
+  // Lock background scroll and pause Lenis smooth scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       const originalBodyOverflow = document.body.style.overflow;
       const originalHtmlOverflow = document.documentElement.style.overflow;
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
+
+      // Pause Lenis smooth scroll while modal is open so it doesn't intercept wheel events
+      if (window.lenis) {
+        window.lenis.stop();
+      }
 
       const handleKeyDown = (e) => {
         if (e.key === 'Escape') onClose();
@@ -59,6 +65,9 @@ export function WorkshopEnrollModal({ isOpen, onClose, selectedWorkshop }) {
       return () => {
         document.body.style.overflow = originalBodyOverflow;
         document.documentElement.style.overflow = originalHtmlOverflow;
+        if (window.lenis) {
+          window.lenis.start();
+        }
         window.removeEventListener('keydown', handleKeyDown);
       };
     }
@@ -71,6 +80,29 @@ export function WorkshopEnrollModal({ isOpen, onClose, selectedWorkshop }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    try {
+      createLead({
+        category: 'workshop',
+        source: 'Workshop Cohort Modal (/workshops)',
+        title: `${activeWorkshop?.title || 'Workshop'} Enrollment`,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        profession: formData.profession,
+        workshopTitle: activeWorkshop?.title || '',
+        batch: activeWorkshop?.dates || activeWorkshop?.nextBatch || 'Upcoming Cohort',
+        fee: activeWorkshop?.fee || '',
+        location: activeWorkshop?.location || 'AuroYali Soil Lab & Block Yard, Auroville',
+        service: 'Workshop Enrollment',
+        message: formData.comments,
+        comments: formData.comments,
+        priority: 'high'
+      });
+    } catch (err) {
+      console.error('Error logging workshop lead:', err);
+    }
+
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
@@ -84,7 +116,10 @@ export function WorkshopEnrollModal({ isOpen, onClose, selectedWorkshop }) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 md:p-6 overflow-y-auto">
+      <div 
+        data-lenis-prevent
+        className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 md:p-6 overflow-y-auto"
+      >
         
         {/* Backdrop */}
         <motion.div 
@@ -101,6 +136,7 @@ export function WorkshopEnrollModal({ isOpen, onClose, selectedWorkshop }) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.35, ease: easeCubic }}
+          data-lenis-prevent
           className="relative w-full max-w-4xl bg-[#FAF7F2] rounded-[24px] sm:rounded-[36px] shadow-[0_25px_70px_rgba(0,0,0,0.35)] border border-[#E5D7C5] overflow-hidden z-10 max-h-[92dvh] lg:h-[85vh] flex flex-col my-auto text-[#2F1F13] font-body"
         >
           {/* Close Button Top-Right Floating */}
@@ -113,7 +149,10 @@ export function WorkshopEnrollModal({ isOpen, onClose, selectedWorkshop }) {
             <X size={16} className="sm:w-[18px] sm:h-[18px]" />
           </button>
 
-          <div className="flex flex-col lg:grid lg:grid-cols-12 flex-1 min-h-0 overflow-y-auto lg:overflow-hidden">
+          <div 
+            data-lenis-prevent
+            className="flex flex-col lg:grid lg:grid-cols-12 flex-1 min-h-0 overflow-y-auto lg:overflow-hidden"
+          >
             
             {/* Left Sidebar / Workshop Card Preview */}
             <div className="lg:col-span-5 bg-[#1F1610] text-[#FAF7F2] p-4 sm:p-6 lg:p-8 flex flex-col justify-between relative overflow-hidden shrink-0 border-b lg:border-b-0 lg:border-r border-[#3D2D23]">
@@ -191,7 +230,10 @@ export function WorkshopEnrollModal({ isOpen, onClose, selectedWorkshop }) {
             </div>
 
             {/* Right Form Area (Smooth Scrollable Container) */}
-            <div className="lg:col-span-7 p-4 sm:p-6 md:p-8 bg-[#FAF7F2] overflow-y-auto min-h-0 flex-1 overscroll-contain">
+            <div 
+              data-lenis-prevent
+              className="lg:col-span-7 p-4 sm:p-6 md:p-8 bg-[#FAF7F2] overflow-y-auto min-h-0 flex-1 overscroll-contain"
+            >
               
               {isSubmitted ? (
                 <motion.div 
