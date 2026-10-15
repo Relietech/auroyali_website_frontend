@@ -58,4 +58,24 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Admin subtle dark scrollbar */
+  .custom-admin-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-admin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-admin-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+  }
+  .custom-admin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(181, 83, 47, 0.7);
+  }
+  .custom-admin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
 }
+

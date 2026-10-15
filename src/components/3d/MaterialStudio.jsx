@@ -1,9 +1,14 @@
-// npm i three @react-three/fiber @react-three/drei
 import React, { useState, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Model3D } from './Model3D';
+import { UploadedModelViewer } from './UploadedModelViewer';
 import { WebGLErrorBoundary, isWebGLAvailable } from './WebGLErrorBoundary';
+import {
+  getMaterialStudioConfig,
+  getActiveMaterialBlobUrl,
+  subscribeToMaterialStudio
+} from '../../services/materialStudioStore';
 import './MaterialStudio.css';
 
 export const DEFAULT_STUDIO_DATA = {
@@ -161,10 +166,41 @@ function AnimatedSpecValue({ spec, isVisible, reducedMotion }) {
 
 export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
   const studioData = { ...DEFAULT_STUDIO_DATA, ...data };
+  const [materialConfig, setMaterialConfig] = useState(() => getMaterialStudioConfig());
+  const [customModelUrl, setCustomModelUrl] = useState(null);
+  const [customModelError, setCustomModelError] = useState(false);
   const [activeSpec, setActiveSpec] = useState('DENSITY');
   const [stacked, setStacked] = useState(true);
   const [webglAvailable, setWebglAvailable] = useState(() => isWebGLAvailable());
   const [retryCount, setRetryCount] = useState(0);
+
+  // Sync with materialStudioStore
+  useEffect(() => {
+    let isMounted = true;
+    async function loadModel() {
+      try {
+        const url = await getActiveMaterialBlobUrl();
+        if (isMounted) {
+          setCustomModelUrl(url);
+          setCustomModelError(false);
+        }
+      } catch (err) {
+        console.warn('[MaterialStudio] Error loading model:', err);
+      }
+    }
+
+    loadModel();
+
+    const unsub = subscribeToMaterialStudio((newCfg) => {
+      setMaterialConfig(newCfg);
+      loadModel();
+    });
+
+    return () => {
+      isMounted = false;
+      unsub();
+    };
+  }, []);
   const [revealedRows, setRevealedRows] = useState({
     DENSITY: true,
     EMBODIED_CARBON: true,
@@ -295,11 +331,21 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
                     <directionalLight position={[-3.5, 2.5, -2.5]} intensity={0.9} color="#e8af84" />
                     <pointLight position={[0, -1.8, 2.5]} intensity={0.5} color="#b5532d" />
 
-                    <Model3D
-                      activeSpec={activeSpec}
-                      stacked={stacked}
-                      reducedMotion={reducedMotion}
-                    />
+                    {materialConfig.activeSource !== 'default' && customModelUrl && !customModelError ? (
+                      <UploadedModelViewer
+                        modelUrl={customModelUrl}
+                        scale={0.88}
+                        posY={-0.12}
+                        mode="day"
+                        onError={() => setCustomModelError(true)}
+                      />
+                    ) : (
+                      <Model3D
+                        activeSpec={activeSpec}
+                        stacked={stacked}
+                        reducedMotion={reducedMotion}
+                      />
+                    )}
 
                     <OrbitControls
                       enableZoom={false}
@@ -326,22 +372,40 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
                 <div className="ms-viewer-hint">
                   <span className="ms-dot" aria-hidden="true" />
                   <span className="ms-hint-text-desktop">
-                    {webglAvailable ? 'Rotate 360° to inspect tactile layers' : 'Tactile block strata view'}
+                    {materialConfig.activeSource !== 'default'
+                      ? 'Rotate 360° to inspect custom material specimen'
+                      : webglAvailable
+                      ? 'Rotate 360° to inspect tactile layers'
+                      : 'Tactile block strata view'}
                   </span>
                   <span className="ms-hint-text-mobile">
-                    {webglAvailable ? '360° Rotate' : 'Tactile View'}
+                    {materialConfig.activeSource !== 'default' ? '360° Custom' : webglAvailable ? '360° Rotate' : 'Tactile View'}
                   </span>
                 </div>
 
-                <button
-                  type="button"
-                  className="ms-stack-btn"
-                  onClick={() => setStacked((prev) => !prev)}
-                  aria-pressed={stacked}
-                  aria-label="Toggle stacking blocks"
-                >
-                  {stacked ? 'Explode View' : 'Stack Blocks'}
-                </button>
+                {materialConfig.activeSource === 'default' ? (
+                  <button
+                    type="button"
+                    className="ms-stack-btn"
+                    onClick={() => setStacked((prev) => !prev)}
+                    aria-pressed={stacked}
+                    aria-label="Toggle stacking blocks"
+                  >
+                    {stacked ? 'Explode View' : 'Stack Blocks'}
+                  </button>
+                ) : (
+                  <span
+                    className="ms-stack-btn"
+                    style={{
+                      pointerEvents: 'none',
+                      background: '#b5532f',
+                      color: '#ffffff',
+                      borderColor: '#b5532f'
+                    }}
+                  >
+                    Custom Specimen
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -350,10 +414,14 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
           <div className="ms-spec-card">
             <div className="ms-spec-header">
               <span className="ms-spec-eyebrow">
-                {studioData.specCard.eyebrow}
+                {materialConfig.eyebrow || studioData.specCard.eyebrow}
               </span>
-              <h3 className="ms-spec-title">{studioData.specCard.title}</h3>
-              <p className="ms-spec-subtitle">{studioData.specCard.subtitle}</p>
+              <h3 className="ms-spec-title">
+                {materialConfig.materialTitle || studioData.specCard.title}
+              </h3>
+              <p className="ms-spec-subtitle">
+                {materialConfig.materialSubtitle || studioData.specCard.subtitle}
+              </p>
             </div>
 
             {/* Spec List */}

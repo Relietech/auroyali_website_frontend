@@ -20,217 +20,24 @@ import {
   Filter,
   Maximize2
 } from 'lucide-react';
+import { 
+  getStoredCarpentryData, 
+  subscribeToCarpentry, 
+  DEFAULT_CARPENTRY_CATEGORIES,
+  DEFAULT_HERO_CONFIG 
+} from '../../services/carpentryStore';
 
 /* ==========================================================================
-   EDITABLE DATA STRUCTURE
-   Replace images, titles, tags, and descriptions here.
+   DEFAULT CARPENTRY CATEGORIES (Exported for backwards compatibility)
    ========================================================================== */
-export const carpentryCategories = [
-  {
-    id: 'doors-windows',
-    number: '01',
-    title: 'Doors and Windows',
-    description: 'Custom handcrafted solid wood main entrance portals, foldable patio doors, and weather-sealed casements engineered for tropical durability and acoustic isolation.',
-    layout: 'bento', // 1 large tile + 3 smaller tiles
-    items: [
-      {
-        id: 'dw-1',
-        categoryId: 'doors-windows',
-        categoryTitle: 'Doors and Windows',
-        title: 'Lakshmi Training Centre',
-        tag: 'Main Door',
-        src: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80',
-        alt: 'Lakshmi Training Centre Main Door - Solid Teak Craftsmanship'
-      },
-      {
-        id: 'dw-2',
-        categoryId: 'doors-windows',
-        categoryTitle: 'Doors and Windows',
-        title: 'Asaithambi Residence',
-        tag: 'Main Door',
-        src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Asaithambi Residence Main Door - Vertical Timber Pivot'
-      },
-      {
-        id: 'dw-3',
-        categoryId: 'doors-windows',
-        categoryTitle: 'Doors and Windows',
-        title: "Karthik's Farmhouse",
-        tag: 'Main Door',
-        src: 'https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&w=1000&q=80',
-        alt: "Karthik's Farmhouse Main Door - Reclaimed Country Wood"
-      },
-      {
-        id: 'dw-4',
-        categoryId: 'doors-windows',
-        categoryTitle: 'Doors and Windows',
-        title: 'Sudha Srinivasan',
-        tag: 'Foldable Door',
-        src: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Sudha Srinivasan Residence Foldable Glazed Door'
-      },
-      {
-        id: 'dw-5',
-        categoryId: 'doors-windows',
-        categoryTitle: 'Doors and Windows',
-        title: 'Solid Teak French Casement',
-        tag: 'Casement Window',
-        src: 'https://images.unsplash.com/photo-1509644851169-2acc08aa25b5?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Solid Teak French Casement Window with Brass Fittings'
-      },
-      {
-        id: 'dw-6',
-        categoryId: 'doors-windows',
-        categoryTitle: 'Doors and Windows',
-        title: 'Louvered Timber Shutter',
-        tag: 'Ventilation Shutter',
-        src: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Tropical Louvered Timber Window Shutter'
-      }
-    ]
-  },
-  {
-    id: 'furniture',
-    number: '02',
-    title: 'Furniture',
-    description: 'Bespoke freestanding and built-in architectural furniture handcrafted with solid hardwoods, cured bamboo, and heirloom joinery that ages gracefully.',
-    layout: 'split', // 1 featured large image + 2x2 grid
-    items: [
-      {
-        id: 'fn-1',
-        categoryId: 'furniture',
-        categoryTitle: 'Furniture',
-        title: 'Bamboo Furniture',
-        tag: 'Lounge Collection',
-        src: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80',
-        alt: 'Bamboo Furniture Lounge Series'
-      },
-      {
-        id: 'fn-2',
-        categoryId: 'furniture',
-        categoryTitle: 'Furniture',
-        title: 'Seating Table',
-        tag: 'Bespoke Seating',
-        src: 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Handcrafted Seating Table and Bench'
-      },
-      {
-        id: 'fn-3',
-        categoryId: 'furniture',
-        categoryTitle: 'Furniture',
-        title: 'Table Design 01',
-        tag: 'Dining Table',
-        src: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Table Design 01 - Solid Timber Dining Series'
-      },
-      {
-        id: 'fn-4',
-        categoryId: 'furniture',
-        categoryTitle: 'Furniture',
-        title: 'Table Design 02',
-        tag: 'Desk & Table',
-        src: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Table Design 02 - Architectural Timber Desk'
-      },
-      {
-        id: 'fn-5',
-        categoryId: 'furniture',
-        categoryTitle: 'Furniture',
-        title: 'Handcrafted Credenza',
-        tag: 'Cane & Teak Storage',
-        src: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Handcrafted Solid Teak Credenza with Cane Webbing'
-      },
-      {
-        id: 'fn-6',
-        categoryId: 'furniture',
-        categoryTitle: 'Furniture',
-        title: 'Sculptural Teak Lounge Chair',
-        tag: 'Artisanal Seating',
-        src: 'https://images.unsplash.com/photo-1580481077194-4d2216e2576b?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Sculptural Teak Lounge Chair with Natural Rattan Weave'
-      },
-      {
-        id: 'fn-7',
-        categoryId: 'furniture',
-        categoryTitle: 'Furniture',
-        title: 'Live-Edge Coffee Table',
-        tag: 'Solid Timber Table',
-        src: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Live-Edge Solid Timber Coffee Table'
-      },
-      {
-        id: 'fn-8',
-        categoryId: 'furniture',
-        categoryTitle: 'Furniture',
-        title: 'Minimalist Bed Frame',
-        tag: 'Bedroom Furniture',
-        src: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Minimalist Solid Wood Platform Bed Frame'
-      }
-    ]
-  },
-  {
-    id: 'wooden-interiors',
-    number: '03',
-    title: 'Wooden Interiors',
-    description: 'Architectural interior millwork, acoustic fluted timber wall paneling, modular solid storage, and custom ceiling pergolas crafted in Auroville.',
-    layout: 'grid',
-    items: [
-      {
-        id: 'wi-1',
-        categoryId: 'wooden-interiors',
-        categoryTitle: 'Wooden Interiors',
-        title: 'Acoustic Fluted Timber Cladding',
-        tag: 'Wall Paneling',
-        src: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Acoustic Fluted Timber Wall Paneling'
-      },
-      {
-        id: 'wi-2',
-        categoryId: 'wooden-interiors',
-        categoryTitle: 'Wooden Interiors',
-        title: 'Exposed Ceiling Rafters & Beams',
-        tag: 'Ceiling Architecture',
-        src: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Solid Wood Ceiling Rafters and Pergola'
-      },
-      {
-        id: 'wi-3',
-        categoryId: 'wooden-interiors',
-        categoryTitle: 'Wooden Interiors',
-        title: 'Modular Walk-In Wardrobe',
-        tag: 'Custom Storage',
-        src: 'https://images.unsplash.com/photo-1558997519-83ea9252edf8?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Bespoke Modular Wooden Wardrobe'
-      },
-      {
-        id: 'wi-4',
-        categoryId: 'wooden-interiors',
-        categoryTitle: 'Wooden Interiors',
-        title: 'Artisanal Hardwood Kitchen',
-        tag: 'Custom Cabinetry',
-        src: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Handcrafted Solid Hardwood Kitchen Cabinetry'
-      },
-      {
-        id: 'wi-5',
-        categoryId: 'wooden-interiors',
-        categoryTitle: 'Wooden Interiors',
-        title: 'Perforated Timber Screen Partition',
-        tag: 'Space Divider',
-        src: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80',
-        alt: 'Handcrafted Architectural Wooden Screen Partition'
-      }
-    ]
-  }
-];
+export const carpentryCategories = DEFAULT_CARPENTRY_CATEGORIES;
 
 /* ==========================================================================
    1. HERO BANNER COMPONENT
    ========================================================================== */
-function PageHero() {
+function PageHero({ hero }) {
   const shouldReduceMotion = useReducedMotion();
+  const config = hero || DEFAULT_HERO_CONFIG;
 
   return (
     <section 
@@ -245,7 +52,7 @@ function PageHero() {
         className="absolute inset-0 z-0 will-change-transform"
       >
         <img
-          src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=85"
+          src={config.heroImage || "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1920&q=85"}
           alt="AuroYali Woodcraft Workshop"
           className="w-full h-full object-cover object-center opacity-70"
         />
@@ -279,7 +86,7 @@ function PageHero() {
           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B5472B]/20 border border-[#B5472B]/40 text-[#E8D9CC] text-xs font-mono uppercase tracking-[0.15em] font-semibold mb-3"
         >
           <Sparkles size={11} className="text-[#B5472B]" />
-          <span>OUR CRAFT</span>
+          <span>{config.eyebrow || 'OUR CRAFT'}</span>
         </motion.div>
 
         {/* H1 Title */}
@@ -289,7 +96,7 @@ function PageHero() {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-white tracking-tight leading-tight mb-4"
         >
-          Carpentry
+          {config.title || 'Carpentry'}
         </motion.h1>
 
         {/* One-line Subtext */}
@@ -299,7 +106,7 @@ function PageHero() {
           transition={{ duration: 0.7, delay: 0.3 }}
           className="font-body font-light text-sm sm:text-base md:text-lg text-[#E8D9CC] max-w-2xl leading-relaxed"
         >
-          Bespoke architectural woodworking, heirloom solid timber joinery, and sustainable woodcraft rooted in Auroville.
+          {config.subtitle || 'Bespoke architectural woodworking, heirloom solid timber joinery, and sustainable woodcraft rooted in Auroville.'}
         </motion.p>
       </div>
     </section>
@@ -672,9 +479,15 @@ function CategoryGalleryModal({ isOpen, onClose, onSelectTile, category }) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      if (window.lenis) {
+        window.lenis.stop();
+      }
     }
     return () => {
       document.body.style.overflow = '';
+      if (window.lenis) {
+        window.lenis.start();
+      }
     };
   }, [isOpen]);
 
@@ -689,6 +502,7 @@ function CategoryGalleryModal({ isOpen, onClose, onSelectTile, category }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
       onClick={onClose}
+      data-lenis-prevent
       className="fixed inset-0 z-50 bg-[#2A1A12]/92 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
       role="dialog"
       aria-modal="true"
@@ -696,6 +510,7 @@ function CategoryGalleryModal({ isOpen, onClose, onSelectTile, category }) {
     >
       <div 
         onClick={(e) => e.stopPropagation()}
+        data-lenis-prevent
         className="relative max-w-6xl w-full bg-[#FAF6F1] rounded-2xl overflow-hidden shadow-2xl border border-[#E8D9CC] flex flex-col max-h-[92vh]"
       >
         {/* Modal Top Header */}
@@ -726,7 +541,7 @@ function CategoryGalleryModal({ isOpen, onClose, onSelectTile, category }) {
         </div>
 
         {/* Scrollable Responsive Image Grid (Only this category's items) */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto p-4 sm:p-6 overscroll-contain">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {items.map((item) => (
               <div
@@ -1018,7 +833,24 @@ function CtaStrip() {
    MAIN CARPENTRY PAGE COMPONENT
    ========================================================================== */
 export function Carpentry() {
-  const [activeSection, setActiveSection] = useState(carpentryCategories[0].id);
+  const [carpentryData, setCarpentryData] = useState(() => getStoredCarpentryData());
+
+  useEffect(() => {
+    // Initial fetch to sync
+    setCarpentryData(getStoredCarpentryData());
+
+    // Subscribe to real-time changes from Admin or other tabs
+    const unsubscribe = subscribeToCarpentry((updated) => {
+      setCarpentryData(updated);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const categories = carpentryData?.categories || DEFAULT_CARPENTRY_CATEGORIES;
+  const hero = carpentryData?.hero || DEFAULT_HERO_CONFIG;
+
+  const [activeSection, setActiveSection] = useState(() => categories[0]?.id || 'doors-windows');
   const [activeCategoryModal, setActiveCategoryModal] = useState(null);
   const [lightboxState, setLightboxState] = useState({
     activeItem: null,
@@ -1043,17 +875,17 @@ export function Carpentry() {
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-    carpentryCategories.forEach((cat) => {
+    categories.forEach((cat) => {
       const el = document.getElementById(cat.id);
       if (el) observer.observe(el);
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [categories]);
 
   const handleOpenLightbox = (item, categoryItems) => {
     const contextItems = categoryItems || (
-      carpentryCategories.find(c => c.id === item.categoryId)?.items || [item]
+      categories.find(c => c.id === item.categoryId)?.items || [item]
     );
     setLightboxState({
       activeItem: item,
@@ -1083,7 +915,7 @@ export function Carpentry() {
 
   const handleOpenCategoryGallery = (categoryOrId) => {
     const targetCategory = typeof categoryOrId === 'string'
-      ? carpentryCategories.find(c => c.id === categoryOrId)
+      ? categories.find(c => c.id === categoryOrId)
       : categoryOrId;
     setActiveCategoryModal(targetCategory || null);
   };
@@ -1096,17 +928,17 @@ export function Carpentry() {
     <div className="bg-[#FAF6F1] min-h-screen text-[#2A1A12]">
       
       {/* 1. HERO BANNER */}
-      <PageHero />
+      <PageHero hero={hero} />
 
       {/* 2. STICKY CATEGORY NAV */}
       <CategoryNav 
-        categories={carpentryCategories} 
+        categories={categories} 
         activeSection={activeSection} 
       />
 
       {/* 3, 4, 5. CATEGORY SECTIONS (Doors & Windows, Furniture, Wooden Interiors) */}
       <main>
-        {carpentryCategories.map((category, index) => (
+        {categories.map((category, index) => (
           <CategorySection
             key={category.id}
             category={category}

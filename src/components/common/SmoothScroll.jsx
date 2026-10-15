@@ -6,7 +6,16 @@ export function SmoothScroll({ children }) {
   const location = useLocation();
 
   useEffect(() => {
-    // Initialize Lenis smooth scroll
+    // Disable Lenis completely on admin routes so tables, modals, and drawers scroll natively with mouse wheel
+    if (location.pathname.startsWith('/admin')) {
+      if (window.lenis) {
+        window.lenis.destroy();
+        window.lenis = null;
+      }
+      return;
+    }
+
+    // Initialize Lenis smooth scroll for public website pages
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Exponential ease out
@@ -33,7 +42,7 @@ export function SmoothScroll({ children }) {
       lenis.destroy();
       window.lenis = null;
     };
-  }, []);
+  }, [location.pathname.startsWith('/admin')]);
 
   // Scroll to top smoothly on route change
   useEffect(() => {
