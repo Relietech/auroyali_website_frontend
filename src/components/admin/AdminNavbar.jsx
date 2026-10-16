@@ -16,6 +16,7 @@ export function AdminNavbar({ onOpenMobileMenu }) {
 
   // Simple breadcrumb determination
   const getBreadcrumb = () => {
+    if (location.pathname.includes('/admin/ethos')) return 'Auroville Ethos & Narrative';
     if (location.pathname.includes('/admin/hero')) return 'Hero 3D Studio & Model Manager';
     if (location.pathname.includes('/admin/material')) return '3D Material Studio Manager';
     if (location.pathname.includes('/admin/team')) return 'About Page Team & Guild';

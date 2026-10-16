@@ -215,13 +215,7 @@ export function Footer() {
       <div className="relative border-t border-earth-300/20 bg-earth-900">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 font-body text-xs font-light text-earth-100/60 md:flex-row md:px-8">
           <p>© {year} AuroYali. All rights reserved.</p>
-          <div className="flex items-center gap-3">
-            <p>Auroville Universal Town</p>
-            <span>•</span>
-            <Link to="/admin/projects" className="text-earth-100/50 hover:text-clay transition-colors">
-              Admin Portal
-            </Link>
-          </div>
+          <p>Auroville Universal Town</p>
         </div>
       </div>
     </footer>

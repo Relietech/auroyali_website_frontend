@@ -712,33 +712,6 @@ export function AdminArchitecture() {
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                 
-                {/* Hover Action Overlay */}
-                {heroForm.bgImage && (
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2.5 z-20">
-                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-[#2F1F13] text-xs font-mono font-bold uppercase tracking-wider cursor-pointer hover:bg-[#FAF7F2] transition-colors shadow-md">
-                      <Upload size={13} className="text-[#B5532F]" />
-                      <span>Upload New</span>
-                      <input
-                        type="file"
-                        accept="image/png, image/jpeg, image/jpg, image/webp"
-                        onChange={handleHeroFileUpload}
-                        className="sr-only"
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setHeroForm(prev => ({ ...prev, bgImage: '' }));
-                        showToast('Banner image deleted');
-                      }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer hover:bg-rose-700 transition-colors shadow-md"
-                    >
-                      <Trash2 size={13} />
-                      <span>Delete</span>
-                    </button>
-                  </div>
-                )}
-                
                 <div className="relative z-10 space-y-1.5">
                   <span className="inline-block px-2 py-0.5 rounded-full bg-[#B5532F] text-white text-[9px] font-mono uppercase tracking-widest font-bold">
                     {heroForm.tag || 'Services'}
@@ -1065,29 +1038,6 @@ export function AdminArchitecture() {
                       alt="Studio Preview"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2.5">
-                      <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white text-[#2F1F13] text-xs font-mono font-bold uppercase tracking-wider cursor-pointer hover:bg-[#FAF7F2] transition-colors shadow-md">
-                        <Upload size={13} className="text-[#B5532F]" />
-                        <span>Upload New</span>
-                        <input
-                          type="file"
-                          accept="image/png, image/jpeg, image/jpg, image/webp"
-                          onChange={handleOverviewFileUpload}
-                          className="sr-only"
-                        />
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOverviewForm(prev => ({ ...prev, image: '' }));
-                          showToast('Studio image deleted');
-                        }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer hover:bg-rose-700 transition-colors shadow-md"
-                      >
-                        <Trash2 size={13} />
-                        <span>Delete</span>
-                      </button>
-                    </div>
                   </>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center text-[#865430]/60 space-y-1">

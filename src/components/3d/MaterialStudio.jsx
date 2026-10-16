@@ -238,6 +238,52 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
     };
   }, []);
 
+  const isDefaultDensity = !materialConfig.densityValue || materialConfig.densityValue === DEFAULT_STUDIO_DATA.specCard.specs[0].value;
+  const isDefaultCarbon = !materialConfig.embodiedCarbonValue || materialConfig.embodiedCarbonValue === DEFAULT_STUDIO_DATA.specCard.specs[1].value;
+  const isDefaultThermal = !materialConfig.thermalLagValue || materialConfig.thermalLagValue === DEFAULT_STUDIO_DATA.specCard.specs[2].value;
+  const isDefaultLifespan = !materialConfig.lifespanValue || materialConfig.lifespanValue === DEFAULT_STUDIO_DATA.specCard.specs[3].value;
+
+  const currentSpecs = [
+    {
+      id: 'DENSITY',
+      label: materialConfig.densityLabel || DEFAULT_STUDIO_DATA.specCard.specs[0].label,
+      value: materialConfig.densityValue || DEFAULT_STUDIO_DATA.specCard.specs[0].value,
+      countFrom: isDefaultDensity ? 0 : null,
+      countTo: 2000,
+      displayTemplate: (val) => `${Math.round(val * 0.925).toLocaleString()} – ${Math.round(val).toLocaleString()} kg/m³`,
+    },
+    {
+      id: 'EMBODIED_CARBON',
+      label: materialConfig.embodiedCarbonLabel || DEFAULT_STUDIO_DATA.specCard.specs[1].label,
+      value: materialConfig.embodiedCarbonValue || DEFAULT_STUDIO_DATA.specCard.specs[1].value,
+      countFrom: isDefaultCarbon ? 0 : null,
+      countTo: 80,
+      displayTemplate: (val) => `${Math.round(val)}% lower than fired brick`,
+    },
+    {
+      id: 'THERMAL_LAG',
+      label: materialConfig.thermalLagLabel || DEFAULT_STUDIO_DATA.specCard.specs[2].label,
+      value: materialConfig.thermalLagValue || DEFAULT_STUDIO_DATA.specCard.specs[2].value,
+      countFrom: isDefaultThermal ? 0 : null,
+      countTo: 10,
+      displayTemplate: (val) => `${Math.max(1, Math.round(val * 0.8))} – ${Math.round(val)} hours passive regulation`,
+    },
+    {
+      id: 'LIFESPAN',
+      label: materialConfig.lifespanLabel || DEFAULT_STUDIO_DATA.specCard.specs[3].label,
+      value: materialConfig.lifespanValue || DEFAULT_STUDIO_DATA.specCard.specs[3].value,
+      countFrom: isDefaultLifespan ? 0 : null,
+      countTo: 100,
+      displayTemplate: (val) => `${Math.round(val)}+ years durability`,
+    },
+    {
+      id: 'COMPOSITION',
+      label: materialConfig.compositionLabel || DEFAULT_STUDIO_DATA.specCard.specs[4].label,
+      value: materialConfig.compositionValue || DEFAULT_STUDIO_DATA.specCard.specs[4].value,
+      countFrom: null,
+    },
+  ];
+
   // IntersectionObserver to set active row and trigger line draws
   useEffect(() => {
     const observerOptions = {
@@ -263,7 +309,7 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
     });
 
     return () => observer.disconnect();
-  }, [studioData.specCard.specs]);
+  }, [currentSpecs]);
 
   return (
     <section className="ms-page" aria-label="Interactive 3D Material Studio">
@@ -426,7 +472,7 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
 
             {/* Spec List */}
             <dl className="ms-spec-list">
-              {studioData.specCard.specs.map((spec, index) => {
+              {currentSpecs.map((spec, index) => {
                 const isActive = activeSpec === spec.id;
                 const isRevealed = revealedRows[spec.id] || reducedMotion;
 
@@ -462,8 +508,8 @@ export default function MaterialStudio({ data = DEFAULT_STUDIO_DATA }) {
 
             {/* Spec Card Footer */}
             <div className="ms-spec-footer">
-              <span className="ms-footer-left">{studioData.specCard.footerLeft}</span>
-              <span className="ms-footer-right">{studioData.specCard.footerRight}</span>
+              <span className="ms-footer-left">{materialConfig.footerLeft || studioData.specCard.footerLeft}</span>
+              <span className="ms-footer-right">{materialConfig.footerRight || studioData.specCard.footerRight}</span>
             </div>
           </div>
         </div>

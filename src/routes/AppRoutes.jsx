@@ -29,6 +29,7 @@ import { AdminArchitectureStepForm } from '../pages/admin/AdminArchitectureStepF
 import { AdminMetalFabrication } from '../pages/admin/AdminMetalFabrication';
 import { AdminMetalProjectForm } from '../pages/admin/AdminMetalProjectForm';
 import { AdminConstruction } from '../pages/admin/AdminConstruction';
+import { AdminEthos } from '../pages/admin/AdminEthos';
 import { AdminLayout } from '../components/admin/AdminLayout';
 import { NotFound } from '../pages/NotFound';
 
@@ -98,6 +99,8 @@ export function AppRoutes() {
         <Route path="metal-studio" element={<AdminMetalFabrication />} />
         <Route path="construction" element={<AdminConstruction />} />
         <Route path="construction-studio" element={<AdminConstruction />} />
+        <Route path="ethos" element={<AdminEthos />} />
+        <Route path="auroville-ethos" element={<AdminEthos />} />
       </Route>
     </Routes>
   );
