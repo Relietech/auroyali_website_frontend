@@ -97,13 +97,7 @@ export function AdminTeam() {
     height: 500
   });
 
-  const [isCsebModalOpen, setIsCsebModalOpen] = useState(false);
-  const [csebForm, setCsebForm] = useState({
-    name: '',
-    role: '',
-    image: ''
-  });
-
+  const [urlInput, setUrlInput] = useState('');
   const [deletingTarget, setDeletingTarget] = useState(null); // { sectionKey, member }
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
@@ -143,7 +137,7 @@ export function AdminTeam() {
     };
   }, [teamData]);
 
-  // Aggregate members with sectionKey tagged
+  // Aggregate members with sectionKey tagged (including CSEB Production Team)
   const allCategorizedMembers = useMemo(() => {
     const list = [];
 
@@ -159,6 +153,18 @@ export function AdminTeam() {
     (teamData.artisans?.members || []).forEach((m) => {
       list.push({ ...m, sectionKey: 'artisans', sectionLabel: 'Artisans' });
     });
+    if (teamData.csebProduction) {
+      list.push({
+        id: 'cseb-production-collective',
+        name: teamData.csebProduction.name || 'Kumar and Team',
+        role: teamData.csebProduction.role || 'On-Site Hydraulic Block Pressing',
+        trade: 'On-site hydraulic earth block pressing & precision masonry production unit',
+        image: teamData.csebProduction.image || '',
+        sectionKey: 'csebProduction',
+        sectionLabel: 'CSEB Production Team',
+        isCollective: true
+      });
+    }
     (teamData.caretakers?.members || []).forEach((m) => {
       list.push({ ...m, sectionKey: 'caretakers', sectionLabel: 'Caretakers' });
     });
@@ -186,10 +192,11 @@ export function AdminTeam() {
     });
   }, [allCategorizedMembers, activeTab, searchQuery]);
 
-  // Open modal to add a new member
+  // Open modal to add a new member (all fields strictly empty)
   const handleOpenAddModal = (defaultSec = 'management') => {
     setEditingMember(null);
-    setSelectedSection(defaultSec === 'all' || defaultSec === 'csebProduction' ? 'management' : defaultSec);
+    const targetSec = defaultSec === 'all' ? 'management' : defaultSec;
+    setSelectedSection(targetSec);
     setMemberForm({
       id: '',
       name: '',
@@ -198,6 +205,7 @@ export function AdminTeam() {
       image: '',
       height: 500
     });
+    setUrlInput('');
     setIsMemberModalOpen(true);
   };
 
@@ -213,6 +221,7 @@ export function AdminTeam() {
       image: member.image || '',
       height: member.height || 500
     });
+    setUrlInput('');
     setIsMemberModalOpen(true);
   };
 
@@ -225,6 +234,7 @@ export function AdminTeam() {
       setIsUploadingPhoto(true);
       const dataUrl = await readImageFileAsDataUrl(file);
       setMemberForm((prev) => ({ ...prev, image: dataUrl }));
+      setUrlInput('');
       e.target.value = '';
     } catch (err) {
       showToast(err.message || 'Failed to load photo');
@@ -237,13 +247,19 @@ export function AdminTeam() {
   const handleSaveMember = (e) => {
     e.preventDefault();
     if (!memberForm.name.trim()) {
-      showToast('Please enter member name');
+      showToast('Please enter member or collective name');
       return;
     }
 
     const saved = saveTeamMember(selectedSection, memberForm);
     if (saved) {
-      showToast(editingMember ? `Updated ${saved.name}` : `Added ${saved.name} to ${TEAM_SECTIONS.find(s => s.key === selectedSection)?.label}`);
+      showToast(
+        selectedSection === 'csebProduction'
+          ? 'Updated CSEB Production Team details'
+          : editingMember
+          ? `Updated ${saved.name}`
+          : `Added ${saved.name} to ${TEAM_SECTIONS.find(s => s.key === selectedSection)?.label}`
+      );
       setIsMemberModalOpen(false);
       setEditingMember(null);
     }
@@ -253,19 +269,27 @@ export function AdminTeam() {
   const handleConfirmDelete = () => {
     if (!deletingTarget) return;
     deleteTeamMember(deletingTarget.sectionKey, deletingTarget.member.id);
-    showToast(`Removed ${deletingTarget.member.name}`);
+    showToast(
+      deletingTarget.sectionKey === 'csebProduction'
+        ? 'Reset CSEB Production Team to default'
+        : `Removed ${deletingTarget.member.name}`
+    );
     setDeletingTarget(null);
   };
 
   // Open CSEB edit modal
   const handleOpenCsebModal = () => {
     const cseb = teamData.csebProduction || {};
-    setCsebForm({
+    handleOpenEditModal({
+      id: 'cseb-production-collective',
       name: cseb.name || 'Kumar and Team',
       role: cseb.role || 'On-Site Hydraulic Block Pressing',
-      image: cseb.image || ''
+      trade: 'On-site hydraulic earth block pressing & precision masonry production unit',
+      image: cseb.image || '',
+      sectionKey: 'csebProduction',
+      sectionLabel: 'CSEB Production Team',
+      isCollective: true
     });
-    setIsCsebModalOpen(true);
   };
 
   const handleCsebPhotoUpload = async (e) => {
@@ -470,61 +494,8 @@ export function AdminTeam() {
         </div>
       </section>
 
-      {/* 4. CSEB PRODUCTION TEAM SPECIAL BANNER (Shown when 'all' or 'csebProduction') */}
-      {(activeTab === 'all' || activeTab === 'csebProduction') && (
-        <section className="bg-white rounded-2xl border border-[#E5D7C5] p-5 sm:p-6 shadow-xs relative overflow-hidden group hover:border-[#7A8B69]/40 transition-colors">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
-            <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden bg-stone-900 border border-[#E5D7C5] shadow-xs shrink-0 group-hover:shadow-md transition-shadow">
-              <img
-                src={teamData.csebProduction?.image || FALLBACK_AVATAR}
-                alt={teamData.csebProduction?.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute top-2 left-2">
-                <span className="px-2 py-0.5 rounded-full text-[9px] font-mono uppercase tracking-wider font-bold bg-[#7A8B69] text-white shadow-xs">
-                  Collective
-                </span>
-              </div>
-            </div>
-
-            <div className="flex-1 space-y-1.5 text-center sm:text-left min-w-0">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-[#7A8B69] font-bold">
-                  CSEB Production Team
-                </span>
-                <span className="text-xs text-[#865430]/40">•</span>
-                <span className="text-xs font-mono text-[#524336]/70">Guild Entity</span>
-              </div>
-
-              <h3 className="font-heading font-black text-2xl sm:text-3xl text-[#2F1F13] tracking-tight">
-                {teamData.csebProduction?.name || 'Kumar and Team'}
-              </h3>
-
-              <p className="text-xs font-mono text-[#B5532F] font-bold uppercase tracking-wider">
-                {teamData.csebProduction?.role || 'On-Site Hydraulic Block Pressing'}
-              </p>
-
-              <p className="text-xs text-[#524336] max-w-2xl font-light leading-relaxed pt-0.5">
-                Featured on the About page as the dedicated collective responsible for on-site hydraulic soil block fabrication and earthen brick production.
-              </p>
-            </div>
-
-            <div className="shrink-0 self-center sm:self-start mt-2 sm:mt-0">
-              <button
-                type="button"
-                onClick={handleOpenCsebModal}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F3EBE0] border border-[#E5D7C5] hover:border-[#7A8B69] text-xs font-mono uppercase tracking-wider text-[#2F1F13] hover:text-[#7A8B69] font-bold transition-all shadow-2xs active:scale-95 cursor-pointer"
-              >
-                <Edit2 size={13} className="text-[#7A8B69]" />
-                <span>Edit Team Details</span>
-              </button>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 5. TEAM MEMBERS CARDS GRID */}
-      {displayedMembers.length === 0 && activeTab !== 'csebProduction' ? (
+      {/* 4. TEAM MEMBERS CARDS GRID */}
+      {displayedMembers.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-[#E5D7C5] space-y-4">
           <div className="w-14 h-14 rounded-full bg-[#FAF7F2] border border-[#E5D7C5] flex items-center justify-center mx-auto text-[#B5532F]">
             <Users size={24} />
@@ -549,7 +520,11 @@ export function AdminTeam() {
           {displayedMembers.map((member) => (
             <div
               key={member.id}
-              className="group bg-white rounded-2xl border border-[#E5D7C5] hover:border-[#B5532F]/50 p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between"
+              className={`group bg-white rounded-2xl border p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between ${
+                member.isCollective
+                  ? 'border-[#7A8B69]/60 hover:border-[#7A8B69] ring-1 ring-[#7A8B69]/10'
+                  : 'border-[#E5D7C5] hover:border-[#B5532F]/50'
+              }`}
             >
               <div>
                 {/* Photo & Badge */}
@@ -559,10 +534,21 @@ export function AdminTeam() {
                     alt={member.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-2 left-2">
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-mono uppercase font-bold tracking-wider bg-white/95 text-[#2F1F13] shadow-xs">
-                      {member.sectionLabel}
+                  <div className="absolute top-2 left-2 flex items-center gap-1.5">
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[9px] font-mono uppercase font-bold tracking-wider shadow-xs ${
+                        member.isCollective
+                          ? 'bg-[#7A8B69] text-white'
+                          : 'bg-white/95 text-[#2F1F13]'
+                      }`}
+                    >
+                      {member.isCollective ? 'Collective' : member.sectionLabel}
                     </span>
+                    {member.isCollective && (
+                      <span className="px-1.5 py-0.5 rounded text-[8px] font-mono bg-black/60 text-white backdrop-blur-xs">
+                        CSEB
+                      </span>
+                    )}
                   </div>
                   {member.height && (
                     <div className="absolute bottom-2 right-2">
@@ -607,7 +593,7 @@ export function AdminTeam() {
                     type="button"
                     onClick={() => setDeletingTarget({ sectionKey: member.sectionKey, member })}
                     className="p-1.5 rounded-lg border border-[#E5D7C5] hover:border-red-400 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                    title={`Delete ${member.name}`}
+                    title={member.isCollective ? 'Reset CSEB team to default' : `Delete ${member.name}`}
                   >
                     <Trash2 size={13} />
                   </button>
@@ -619,7 +605,7 @@ export function AdminTeam() {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL 1: ADD / EDIT TEAM MEMBER */}
+      {/* MODAL 1: ADD / EDIT TEAM MEMBER & COLLECTIVES */}
       {/* ======================================================== */}
       {isMemberModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
@@ -631,10 +617,14 @@ export function AdminTeam() {
             <div className="flex items-center justify-between border-b border-[#F0E6D8] pb-3">
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-[#B5532F] font-bold block">
-                  Guild Profile Form
+                  {selectedSection === 'csebProduction' ? 'Collective Profile' : 'Guild Profile Form'}
                 </span>
                 <h3 className="font-heading font-black text-xl text-[#2F1F13]">
-                  {editingMember ? `Edit ${editingMember.name}` : 'Add Guild Member'}
+                  {selectedSection === 'csebProduction'
+                    ? 'Edit CSEB Production Team'
+                    : editingMember
+                    ? `Edit ${editingMember.name}`
+                    : 'Add Guild Member'}
                 </h3>
               </div>
               <button
@@ -659,7 +649,7 @@ export function AdminTeam() {
                     onChange={(e) => setSelectedSection(e.target.value)}
                     className="w-full appearance-none px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5] text-xs font-semibold text-[#2F1F13] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#B5532F]/40"
                   >
-                    {TEAM_SECTIONS.filter((s) => s.key !== 'csebProduction').map((sec) => (
+                    {TEAM_SECTIONS.map((sec) => (
                       <option key={sec.key} value={sec.key}>
                         {sec.label} — ({sec.description})
                       </option>
@@ -669,30 +659,36 @@ export function AdminTeam() {
                 </div>
               </div>
 
-              {/* Full Name */}
+              {/* Full Name / Collective Name */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-[#524336] uppercase tracking-wider block">
-                  Member Full Name *
+                  {selectedSection === 'csebProduction' ? 'Collective Group Name *' : 'Member Full Name *'}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Mohan, Subbulakshmi, Kannan..."
+                  placeholder={selectedSection === 'csebProduction' ? 'e.g. Kumar and Team' : 'e.g. Mohan, Subbulakshmi, Kannan...'}
                   value={memberForm.name}
                   onChange={(e) => setMemberForm({ ...memberForm, name: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5] text-xs text-[#2F1F13] focus:outline-none focus:ring-2 focus:ring-[#B5532F]/40"
                 />
               </div>
 
-              {/* Role Title */}
+              {/* Role Title / Subtitle */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-[#524336] uppercase tracking-wider block">
-                  Role Title *
+                  {selectedSection === 'csebProduction'
+                    ? 'Collective Role / Operational Subtitle *'
+                    : 'Role Title *'}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Executive, Head Mason, Site Supervisor, Chef..."
+                  placeholder={
+                    selectedSection === 'csebProduction'
+                      ? 'e.g. On-Site Hydraulic Block Pressing'
+                      : 'e.g. Executive, Head Mason, Site Supervisor, Chef...'
+                  }
                   value={memberForm.role}
                   onChange={(e) => setMemberForm({ ...memberForm, role: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5] text-xs text-[#2F1F13] focus:outline-none focus:ring-2 focus:ring-[#B5532F]/40"
@@ -738,73 +734,77 @@ export function AdminTeam() {
               {/* Member Photo (Upload or URL) */}
               <div className="space-y-2 pt-2 border-t border-[#F0E6D8]">
                 <label className="text-[11px] font-bold text-[#524336] uppercase tracking-wider block">
-                  Member Portrait Photo
+                  {selectedSection === 'csebProduction' ? 'Team Cover Photo' : 'Member Portrait Photo'}
                 </label>
 
-                {memberForm.image ? (
-                  <div className="flex items-center gap-4 p-3 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5]">
+                {memberForm.image && (
+                  <div
+                    className={`relative ${
+                      selectedSection === 'csebProduction'
+                        ? 'aspect-[16/9]'
+                        : 'aspect-[4/3] max-h-52'
+                    } rounded-xl overflow-hidden bg-stone-900 border border-[#E5D7C5]`}
+                  >
                     <img
                       src={memberForm.image}
                       alt="Preview"
-                      className="w-16 h-16 rounded-xl object-cover bg-stone-900 border border-[#E5D7C5] shrink-0"
+                      className="w-full h-full object-cover"
                     />
-                    <div className="space-y-1">
-                      <p className="text-[11px] text-[#2F1F13] font-bold">Active Portrait Image</p>
-                      <div className="flex items-center gap-2">
-                        <label className="text-[11px] text-[#B5532F] hover:underline cursor-pointer font-bold flex items-center gap-1">
-                          <Upload size={11} />
-                          <span>Replace</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handlePhotoFileUpload}
-                            className="hidden"
-                          />
-                        </label>
-                        <span className="text-[#865430]/40">•</span>
-                        <button
-                          type="button"
-                          onClick={() => setMemberForm({ ...memberForm, image: '' })}
-                          className="text-[11px] text-red-600 hover:underline cursor-pointer font-bold"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {/* Upload File */}
-                    <label className="flex flex-col items-center justify-center p-4 border border-dashed border-[#E5D7C5] hover:border-[#B5532F] rounded-xl bg-[#FAF7F2] hover:bg-[#FAF7F2]/80 transition-all cursor-pointer text-center group">
-                      <Upload size={18} className="text-[#B5532F] mb-1.5 group-hover:scale-110 transition-transform" />
-                      <span className="text-[11px] font-bold text-[#2F1F13] group-hover:text-[#B5532F]">
-                        {isUploadingPhoto ? 'Uploading...' : 'Upload from Device'}
-                      </span>
-                      <span className="text-[10px] text-[#865430]/70 mt-0.5">PNG, JPG, WebP</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoFileUpload}
-                        className="hidden"
-                        disabled={isUploadingPhoto}
-                      />
-                    </label>
-
-                    {/* Or Paste URL */}
-                    <div className="flex flex-col justify-center p-3 border border-[#E5D7C5] rounded-xl bg-white space-y-1">
-                      <span className="text-[10px] font-bold text-[#865430] uppercase">
-                        Or Paste Image URL:
-                      </span>
-                      <input
-                        type="url"
-                        placeholder="https://images.unsplash.com/..."
-                        value={memberForm.image}
-                        onChange={(e) => setMemberForm({ ...memberForm, image: e.target.value })}
-                        className="w-full px-2.5 py-1.5 rounded-lg bg-[#FAF7F2] border border-[#E5D7C5] text-[11px] focus:outline-none"
-                      />
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMemberForm({ ...memberForm, image: '' });
+                        setUrlInput('');
+                      }}
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 hover:bg-black/80 text-white transition-colors cursor-pointer"
+                      title="Remove photo"
+                    >
+                      <X size={14} />
+                    </button>
                   </div>
                 )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <label className="flex items-center justify-center gap-1.5 p-2.5 border border-dashed border-[#E5D7C5] hover:border-[#B5532F] rounded-xl bg-[#FAF7F2] cursor-pointer text-center font-bold transition-colors">
+                    <Upload size={13} className="text-[#B5532F]" />
+                    <span className="text-xs text-[#2F1F13]">
+                      {isUploadingPhoto ? 'Uploading...' : 'Upload from Device'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoFileUpload}
+                      className="hidden"
+                      disabled={isUploadingPhoto}
+                    />
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="url"
+                      placeholder="https://images.unsplash.com/..."
+                      value={urlInput}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setUrlInput(val);
+                        setMemberForm((prev) => ({ ...prev, image: val }));
+                      }}
+                      className="w-full px-2.5 py-2 pr-7 rounded-xl bg-white border border-[#E5D7C5] text-xs font-mono text-[#2F1F13] focus:outline-none focus:ring-1 focus:ring-[#B5532F]"
+                    />
+                    {urlInput && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUrlInput('');
+                          setMemberForm((prev) => ({ ...prev, image: '' }));
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-[#865430]/60 hover:text-red-500 cursor-pointer"
+                        title="Clear URL"
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Modal Buttons */}
@@ -821,7 +821,13 @@ export function AdminTeam() {
                   className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#B5532F] hover:bg-[#9C4424] text-white text-xs font-mono uppercase font-bold shadow-xs cursor-pointer"
                 >
                   <Check size={14} />
-                  <span>{editingMember ? 'Update Member' : 'Save Member'}</span>
+                  <span>
+                    {selectedSection === 'csebProduction'
+                      ? 'Save CSEB Team'
+                      : editingMember
+                      ? 'Update Member'
+                      : 'Save Member'}
+                  </span>
                 </button>
               </div>
             </form>
@@ -830,117 +836,7 @@ export function AdminTeam() {
       )}
 
       {/* ======================================================== */}
-      {/* MODAL 2: EDIT CSEB PRODUCTION TEAM */}
-      {/* ======================================================== */}
-      {isCsebModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-[#E5D7C5] p-6 space-y-5 font-sans"
-          >
-            <div className="flex items-center justify-between border-b border-[#F0E6D8] pb-3">
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-[#B5532F] font-bold block">
-                  Collective Profile
-                </span>
-                <h3 className="font-heading font-black text-xl text-[#2F1F13]">
-                  Edit CSEB Production Team
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsCsebModalOpen(false)}
-                className="p-1.5 rounded-lg text-[#865430] hover:text-[#2F1F13] cursor-pointer"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveCseb} className="space-y-4 text-xs font-mono">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-[#524336] uppercase tracking-wider block">
-                  Collective Group Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Kumar and Team"
-                  value={csebForm.name}
-                  onChange={(e) => setCsebForm({ ...csebForm, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5] text-xs text-[#2F1F13] focus:outline-none focus:ring-2 focus:ring-[#B5532F]/40"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-[#524336] uppercase tracking-wider block">
-                  Collective Role / Operational Subtitle *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. On-Site Hydraulic Block Pressing"
-                  value={csebForm.role}
-                  onChange={(e) => setCsebForm({ ...csebForm, role: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5] text-xs text-[#2F1F13] focus:outline-none focus:ring-2 focus:ring-[#B5532F]/40"
-                />
-              </div>
-
-              {/* Photo */}
-              <div className="space-y-2 pt-2 border-t border-[#F0E6D8]">
-                <label className="text-[11px] font-bold text-[#524336] uppercase tracking-wider block">
-                  Team Cover Photo
-                </label>
-
-                {csebForm.image && (
-                  <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-stone-900 border border-[#E5D7C5]">
-                    <img src={csebForm.image} alt="Preview" className="w-full h-full object-cover" />
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <label className="flex items-center justify-center gap-1.5 p-2.5 border border-dashed border-[#E5D7C5] hover:border-[#B5532F] rounded-xl bg-[#FAF7F2] cursor-pointer text-center font-bold">
-                    <Upload size={13} className="text-[#B5532F]" />
-                    <span>Upload from Device</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleCsebPhotoUpload}
-                      className="hidden"
-                    />
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="Or paste photo URL..."
-                    value={csebForm.image}
-                    onChange={(e) => setCsebForm({ ...csebForm, image: e.target.value })}
-                    className="px-2.5 py-2 rounded-xl bg-white border border-[#E5D7C5] text-xs"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#F0E6D8]">
-                <button
-                  type="button"
-                  onClick={() => setIsCsebModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-[#E5D7C5] text-xs font-mono uppercase text-[#524336]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#B5532F] text-white text-xs font-mono uppercase font-bold shadow-xs cursor-pointer hover:bg-[#9C4424]"
-                >
-                  <Check size={14} />
-                  <span>Save CSEB Team</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ======================================================== */}
-      {/* MODAL 3: DELETE CONFIRMATION */}
+      {/* MODAL 2: DELETE CONFIRMATION */}
       {/* ======================================================== */}
       {deletingTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">

@@ -14,6 +14,7 @@ import {
   X,
   ShieldCheck,
   FolderGit2,
+  Globe,
   Box,
   Layers,
   Hammer,
@@ -88,16 +89,32 @@ const NAV_ITEMS_BEFORE = [
   }
 ];
 
+// 3D Studio grouped in collapsible dropdown
+const THREE_D_MENU = {
+  name: '3D',
+  shortName: '3D',
+  icon: Box,
+  subItems: [
+    {
+      name: 'Hero 3D Studio',
+      path: '/admin/hero-3d',
+      icon: Box,
+      matchPaths: ['/admin/hero-3d', '/admin/hero']
+    },
+    {
+      name: '3D Material Studio',
+      path: '/admin/material-studio',
+      icon: Layers,
+      matchPaths: ['/admin/material-studio', '/admin/materials-3d']
+    }
+  ]
+};
+
 const NAV_ITEMS_AFTER = [
   {
-    name: 'Hero 3D Studio',
-    path: '/admin/hero-3d',
-    icon: Box
-  },
-  {
-    name: '3D Material Studio',
-    path: '/admin/material-studio',
-    icon: Layers
+    name: 'Auroville Ethos',
+    path: '/admin/ethos',
+    icon: Sparkles
   },
   {
     name: 'About Team & Guild',
@@ -146,6 +163,20 @@ export function AdminSidebar({
       setIsLeadsOpen(true);
     }
   }, [isAnyLeadActive]);
+
+  // Check if current route is within any of the 3D Studio routes
+  const isAny3DActive = THREE_D_MENU.subItems.some((sub) =>
+    sub.matchPaths.some(p => location.pathname === p || location.pathname.startsWith(`${p}/`))
+  );
+
+  const [is3DOpen, setIs3DOpen] = useState(() => isAny3DActive);
+
+  // Auto-expand 3D dropdown when user visits any 3D route
+  useEffect(() => {
+    if (isAny3DActive) {
+      setIs3DOpen(true);
+    }
+  }, [isAny3DActive]);
 
   const [unreadCounts, setUnreadCounts] = useState(() => {
     try {
@@ -218,7 +249,9 @@ export function AdminSidebar({
   };
 
   const sidebarContent = (
-    <div className="h-full w-full flex flex-col bg-[#1B140E] text-[#FAF7F2] border-r border-[#382B21] select-none font-body overflow-hidden">
+    <div className={`h-full w-full flex flex-col bg-[#1B140E] text-[#FAF7F2] border-r border-[#382B21] select-none font-body ${
+      isCollapsed ? 'overflow-visible' : 'overflow-hidden'
+    }`}>
       
       {/* 1. BRAND HEADER (Pinned at top) */}
       <div className="shrink-0 p-4 sm:p-5 border-b border-[#382B21] flex items-center justify-between bg-[#1B140E]">
@@ -255,7 +288,9 @@ export function AdminSidebar({
       </div>
 
       {/* 2. NAVIGATION LINKS (Scrolls independently when there are many links) */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-1.5 custom-admin-scrollbar">
+      <div className={`flex-1 min-h-0 p-3 sm:p-4 space-y-1.5 custom-admin-scrollbar ${
+        isCollapsed ? 'overflow-visible' : 'overflow-y-auto'
+      }`}>
         {!isCollapsed && (
           <span className="px-3 text-[10px] font-mono uppercase tracking-[0.2em] text-white/40 font-bold block mb-2">
             Management
@@ -338,8 +373,10 @@ export function AdminSidebar({
         ) : (
           /* Collapsed Sidebar: Hover Flyout Popover for Services */
           <div className="relative group">
-            <button
-              type="button"
+            <Link
+              to="/admin/architecture"
+              onClick={onCloseMobile}
+              title="Services Studios"
               className={`w-full flex items-center justify-center p-2.5 rounded-xl font-mono text-xs transition-all ${
                 isAnyServiceActive
                   ? 'bg-[#B5532F] text-white shadow-md'
@@ -350,15 +387,135 @@ export function AdminSidebar({
               {isAnyServiceActive && (
                 <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E8782A] animate-pulse" />
               )}
-            </button>
+            </Link>
 
             {/* Flyout popover on hover */}
-            <div className="hidden group-hover:block absolute left-full top-0 ml-3 w-56 rounded-xl bg-[#1B140E] border border-[#382B21] shadow-2xl p-2 z-50 space-y-1">
+            <div className="hidden group-hover:block absolute left-full top-0 ml-3 w-56 rounded-xl bg-[#1B140E] border border-[#382B21] shadow-2xl p-2 z-50 space-y-1 before:content-[''] before:absolute before:-left-3 before:top-0 before:w-4 before:h-full">
               <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#C98A4B] font-bold border-b border-[#382B21] mb-1 flex items-center justify-between">
                 <span>Services Studios</span>
                 <span className="text-white/40">4</span>
               </div>
               {SERVICES_MENU.subItems.map((sub) => {
+                const SubIcon = sub.icon;
+                const isSubActive = sub.matchPaths.some(
+                  p => location.pathname === p || location.pathname.startsWith(`${p}/`)
+                );
+                return (
+                  <Link
+                    key={sub.path}
+                    to={sub.path}
+                    onClick={onCloseMobile}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-lg font-mono text-xs transition-all ${
+                      isSubActive
+                        ? 'bg-[#B5532F] text-white font-bold'
+                        : 'text-white/70 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <SubIcon size={14} className="shrink-0" />
+                    <span className="truncate text-[11px] uppercase tracking-wider">{sub.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 3D DROPDOWN GROUP */}
+        {!isCollapsed ? (
+          <div className="space-y-1 pt-0.5">
+            <button
+              type="button"
+              onClick={() => setIs3DOpen(prev => !prev)}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-mono text-xs transition-all cursor-pointer group ${
+                isAny3DActive
+                  ? 'bg-white/10 text-white font-bold border-l-2 border-[#B5532F]'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <div className="flex items-center gap-3 truncate">
+                <Box size={17} className={`shrink-0 ${isAny3DActive ? 'text-[#B5532F]' : 'text-white/70 group-hover:text-white'}`} />
+                <span className="truncate tracking-wider uppercase text-[11px]">
+                  3D
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="px-1.5 py-0.5 rounded bg-white/10 text-white/60 text-[9px] font-mono">
+                  {THREE_D_MENU.subItems.length}
+                </span>
+                <ChevronDown
+                  size={14}
+                  className={`transition-transform duration-200 text-white/50 group-hover:text-white ${
+                    is3DOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </div>
+            </button>
+
+            {/* Collapsible Sub-menu items for 3D */}
+            <AnimatePresence initial={false}>
+              {is3DOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: 'easeInOut' }}
+                  className="overflow-hidden pl-2 ml-4 border-l border-white/15 space-y-1 my-1"
+                >
+                  {THREE_D_MENU.subItems.map((sub) => {
+                    const SubIcon = sub.icon;
+                    const isSubActive = sub.matchPaths.some(
+                      p => location.pathname === p || location.pathname.startsWith(`${p}/`)
+                    );
+
+                    return (
+                      <NavLink
+                        key={sub.path}
+                        to={sub.path}
+                        onClick={onCloseMobile}
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg font-mono text-[11px] transition-all group ${
+                          isSubActive
+                            ? 'bg-[#B5532F] text-white shadow-xs font-bold'
+                            : 'text-white/70 hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <SubIcon size={14} className="shrink-0" />
+                        <span className="truncate tracking-wider uppercase text-[10.5px]">
+                          {sub.name}
+                        </span>
+                      </NavLink>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : (
+          /* Collapsed Sidebar: Hover Flyout Popover for 3D */
+          <div className="relative group">
+            <Link
+              to="/admin/hero-3d"
+              onClick={onCloseMobile}
+              title="3D Studios"
+              className={`w-full flex items-center justify-center p-2.5 rounded-xl font-mono text-xs transition-all ${
+                isAny3DActive
+                  ? 'bg-[#B5532F] text-white shadow-md'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Box size={17} />
+              {isAny3DActive && (
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E8782A] animate-pulse" />
+              )}
+            </Link>
+
+            {/* Flyout popover on hover */}
+            <div className="hidden group-hover:block absolute left-full top-0 ml-3 w-56 rounded-xl bg-[#1B140E] border border-[#382B21] shadow-2xl p-2 z-50 space-y-1 before:content-[''] before:absolute before:-left-3 before:top-0 before:w-4 before:h-full">
+              <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#C98A4B] font-bold border-b border-[#382B21] mb-1 flex items-center justify-between">
+                <span>3D</span>
+                <span className="text-white/40">{THREE_D_MENU.subItems.length}</span>
+              </div>
+              {THREE_D_MENU.subItems.map((sub) => {
                 const SubIcon = sub.icon;
                 const isSubActive = sub.matchPaths.some(
                   p => location.pathname === p || location.pathname.startsWith(`${p}/`)
@@ -475,8 +632,10 @@ export function AdminSidebar({
         ) : (
           /* Collapsed Sidebar: Hover Flyout Popover for Leads */
           <div className="relative group">
-            <button
-              type="button"
+            <Link
+              to="/admin/inquiries"
+              onClick={onCloseMobile}
+              title="Contact Leads & Inquiries"
               className={`w-full flex items-center justify-center p-2.5 rounded-xl font-mono text-xs transition-all relative ${
                 isAnyLeadActive
                   ? 'bg-[#B5532F] text-white shadow-md'
@@ -489,10 +648,10 @@ export function AdminSidebar({
               ) : isAnyLeadActive ? (
                 <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E8782A]" />
               ) : null}
-            </button>
+            </Link>
 
             {/* Flyout popover on hover */}
-            <div className="hidden group-hover:block absolute left-full top-0 ml-3 w-56 rounded-xl bg-[#1B140E] border border-[#382B21] shadow-2xl p-2 z-50 space-y-1">
+            <div className="hidden group-hover:block absolute left-full bottom-0 ml-3 w-56 rounded-xl bg-[#1B140E] border border-[#382B21] shadow-2xl p-2 z-50 space-y-1 before:content-[''] before:absolute before:-left-3 before:top-0 before:w-4 before:h-full">
               <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest text-[#C98A4B] font-bold border-b border-[#382B21] mb-1 flex items-center justify-between">
                 <span>Leads</span>
                 {unreadCounts.contact + unreadCounts.workshop > 0 ? (
@@ -559,14 +718,33 @@ export function AdminSidebar({
         <Link
           to="/"
           target="_blank"
-          className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-mono uppercase tracking-wider transition-all border border-white/10 group"
+          rel="noopener noreferrer"
+          className={`flex items-center rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-mono uppercase tracking-wider transition-all border border-white/10 group relative ${
+            isCollapsed ? 'justify-center p-2.5 w-full' : 'justify-between px-3 py-2 w-full'
+          }`}
           title="Open public website in new tab"
         >
-          <div className="flex items-center gap-2.5 truncate">
-            <FolderGit2 size={15} className="shrink-0 text-[#C98A4B]" />
-            {!isCollapsed && <span className="truncate">Public Website</span>}
-          </div>
-          <ArrowUpRight size={13} className="shrink-0 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          {isCollapsed ? (
+            <div className="relative flex items-center justify-center">
+              <Globe size={17} className="text-[#C98A4B] group-hover:text-white transition-colors" />
+              <ArrowUpRight size={10} className="absolute -top-1 -right-2 text-white/50 group-hover:text-[#E8782A] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2.5 truncate">
+                <Globe size={15} className="shrink-0 text-[#C98A4B]" />
+                <span className="truncate">Public Website</span>
+              </div>
+              <ArrowUpRight size={13} className="shrink-0 opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </>
+          )}
+
+          {/* Tooltip on collapsed desktop view */}
+          {isCollapsed && (
+            <div className="hidden group-hover:block absolute left-full ml-3 px-2.5 py-1 rounded-lg bg-[#2F1F13] text-white text-xs whitespace-nowrap shadow-xl z-50 border border-[#E5D7C5]/20 pointer-events-none">
+              Public Website ↗
+            </div>
+          )}
         </Link>
 
         {/* Desktop Collapse Button */}

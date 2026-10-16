@@ -439,18 +439,31 @@ export function AdminMaterialStudio() {
             )}
           </div>
 
-          {/* CARD B: MATERIAL TITLE & SPECIFICATION DETAILS */}
+          {/* CARD B: MATERIAL TITLE & OVERVIEW */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5D7C5] shadow-xs space-y-4">
             <div className="border-b border-[#E5D7C5]/60 pb-3">
               <h3 className="font-heading text-base sm:text-lg font-bold text-[#2F1F13]">
-                Material Information & Specs Header
+                Material Information & Header
               </h3>
               <p className="text-xs text-[#524336] font-light">
-                The title and descriptive subtitle displayed alongside the 3D specimen
+                The eyebrow, title, and descriptive subtitle displayed alongside the 3D specimen
               </p>
             </div>
 
             <div className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#524336] mb-1 font-semibold">
+                  Eyebrow / Header Tag
+                </label>
+                <input
+                  type="text"
+                  value={config.eyebrow ?? 'AUROVILLE SPECIFICATION SHEET'}
+                  onChange={(e) => handleFieldChange('eyebrow', e.target.value)}
+                  placeholder="e.g. AUROVILLE SPECIFICATION SHEET"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#E5D7C5] bg-[#FAF7F2] text-xs font-mono text-[#B5532F] focus:outline-none focus:border-[#B5532F]"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-mono uppercase tracking-wider text-[#524336] mb-1 font-semibold">
                   Material Title
@@ -479,9 +492,226 @@ export function AdminMaterialStudio() {
             </div>
           </div>
 
+          {/* CARD C: TECHNICAL SPECIFICATIONS (AUROVILLE SPEC SHEET) */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5D7C5] shadow-xs space-y-4">
+            <div className="border-b border-[#E5D7C5]/60 pb-3 flex items-center justify-between">
+              <div>
+                <h3 className="font-heading text-base sm:text-lg font-bold text-[#2F1F13]">
+                  Technical Specifications
+                </h3>
+                <p className="text-xs text-[#524336] font-light">
+                  Key physical & ecological properties displayed in the specification sheet
+                </p>
+              </div>
+              <span className="px-2 py-0.5 rounded-full bg-[#B5532F]/10 text-[#B5532F] text-[10px] font-mono font-bold uppercase">
+                5 Metrics
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              {/* Density */}
+              <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5]/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#865430] font-bold">
+                    1. Density
+                  </span>
+                  <span className="text-[10px] font-mono text-[#524336]/60">Physical Mass</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Label</label>
+                    <input
+                      type="text"
+                      value={config.densityLabel ?? 'DENSITY'}
+                      onChange={(e) => handleFieldChange('densityLabel', e.target.value)}
+                      placeholder="DENSITY"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Value</label>
+                    <input
+                      type="text"
+                      value={config.densityValue ?? '1,850 – 2,000 kg/m³'}
+                      onChange={(e) => handleFieldChange('densityValue', e.target.value)}
+                      placeholder="1,850 – 2,000 kg/m³"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono font-medium text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Embodied Carbon */}
+              <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5]/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#865430] font-bold">
+                    2. Embodied Carbon
+                  </span>
+                  <span className="text-[10px] font-mono text-[#524336]/60">Ecological Footprint</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Label</label>
+                    <input
+                      type="text"
+                      value={config.embodiedCarbonLabel ?? 'EMBODIED CARBON'}
+                      onChange={(e) => handleFieldChange('embodiedCarbonLabel', e.target.value)}
+                      placeholder="EMBODIED CARBON"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Value</label>
+                    <input
+                      type="text"
+                      value={config.embodiedCarbonValue ?? '80% lower than fired brick'}
+                      onChange={(e) => handleFieldChange('embodiedCarbonValue', e.target.value)}
+                      placeholder="80% lower than fired brick"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono font-medium text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Thermal Lag */}
+              <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5]/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#865430] font-bold">
+                    3. Thermal Lag
+                  </span>
+                  <span className="text-[10px] font-mono text-[#524336]/60">Passive Regulation</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Label</label>
+                    <input
+                      type="text"
+                      value={config.thermalLagLabel ?? 'THERMAL LAG'}
+                      onChange={(e) => handleFieldChange('thermalLagLabel', e.target.value)}
+                      placeholder="THERMAL LAG"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Value</label>
+                    <input
+                      type="text"
+                      value={config.thermalLagValue ?? '8 – 10 hours passive regulation'}
+                      onChange={(e) => handleFieldChange('thermalLagValue', e.target.value)}
+                      placeholder="8 – 10 hours passive regulation"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono font-medium text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Lifespan */}
+              <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5]/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#865430] font-bold">
+                    4. Lifespan & Durability
+                  </span>
+                  <span className="text-[10px] font-mono text-[#524336]/60">Longevity</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Label</label>
+                    <input
+                      type="text"
+                      value={config.lifespanLabel ?? 'LIFESPAN'}
+                      onChange={(e) => handleFieldChange('lifespanLabel', e.target.value)}
+                      placeholder="LIFESPAN"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Value</label>
+                    <input
+                      type="text"
+                      value={config.lifespanValue ?? '100+ years durability'}
+                      onChange={(e) => handleFieldChange('lifespanValue', e.target.value)}
+                      placeholder="100+ years durability"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono font-medium text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Composition */}
+              <div className="p-3.5 rounded-xl bg-[#FAF7F2] border border-[#E5D7C5]/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#865430] font-bold">
+                    5. Composition / Formulation
+                  </span>
+                  <span className="text-[10px] font-mono text-[#524336]/60">Raw Material Ratios</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Label</label>
+                    <input
+                      type="text"
+                      value={config.compositionLabel ?? 'COMPOSITION'}
+                      onChange={(e) => handleFieldChange('compositionLabel', e.target.value)}
+                      placeholder="COMPOSITION"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-mono uppercase text-[#524336] mb-0.5">Value</label>
+                    <input
+                      type="text"
+                      value={config.compositionValue ?? 'Local red soil (75%), sand (18%), lime/cement stabilizer (7%)'}
+                      onChange={(e) => handleFieldChange('compositionValue', e.target.value)}
+                      placeholder="Local red soil (75%), sand (18%), lime/cement stabilizer (7%)"
+                      className="w-full px-3 py-1.5 rounded-lg border border-[#E5D7C5] bg-white text-xs font-mono font-medium text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CARD D: FOOTER BADGES */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-[#E5D7C5] shadow-xs space-y-4">
+            <div className="border-b border-[#E5D7C5]/60 pb-3">
+              <h3 className="font-heading text-base sm:text-lg font-bold text-[#2F1F13]">
+                Certification & Standard Badges
+              </h3>
+              <p className="text-xs text-[#524336] font-light">
+                Displayed in the bottom strip of the specification card
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#524336] mb-1 font-semibold">
+                  Footer Left Badge
+                </label>
+                <input
+                  type="text"
+                  value={config.footerLeft ?? 'Eco-Certified • Zero Toxic Glues'}
+                  onChange={(e) => handleFieldChange('footerLeft', e.target.value)}
+                  placeholder="Eco-Certified • Zero Toxic Glues"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#E5D7C5] bg-[#FAF7F2] text-xs font-mono text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#524336] mb-1 font-semibold">
+                  Footer Right Badge
+                </label>
+                <input
+                  type="text"
+                  value={config.footerRight ?? 'AuroYali Standard'}
+                  onChange={(e) => handleFieldChange('footerRight', e.target.value)}
+                  placeholder="AuroYali Standard"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#E5D7C5] bg-[#FAF7F2] text-xs font-mono text-[#2F1F13] focus:outline-none focus:border-[#B5532F]"
+                />
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {/* RIGHT COLUMN: LIVE 3D PREVIEW (6 COLS, STICKY) */}
+        {/* RIGHT COLUMN: LIVE 3D PREVIEW & LIVE SPEC SHEET (6 COLS, STICKY) */}
         <div className="lg:col-span-6 lg:sticky lg:top-20 space-y-4">
           <div className="flex flex-col bg-[#FAF7F2] rounded-3xl border border-[#E5D7C5] overflow-hidden shadow-sm">
             
@@ -500,7 +730,7 @@ export function AdminMaterialStudio() {
             </div>
 
             {/* 3D Canvas Stage */}
-            <div className="relative w-full h-[380px] sm:h-[420px] bg-gradient-to-b from-[#F5ECE0] via-[#FBF8F3] to-[#F2E8DC] cursor-grab active:cursor-grabbing">
+            <div className="relative w-full h-[320px] sm:h-[350px] bg-gradient-to-b from-[#F5ECE0] via-[#FBF8F3] to-[#F2E8DC] cursor-grab active:cursor-grabbing">
               <WebGLErrorBoundary
                 fallback={() => (
                   <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-[#524336]">
@@ -579,13 +809,13 @@ export function AdminMaterialStudio() {
 
             {/* Bottom Inspect Strip */}
             <div className="p-3 bg-white border-t border-[#E5D7C5] flex items-center justify-between text-xs font-mono">
-              <span className="text-[#865430] text-[11px]">
+              <span className="text-[#865430] text-[11px] truncate max-w-[200px]">
                 {config.materialTitle || 'CSEB Block'}
               </span>
               <Link
                 to="/"
                 target="_blank"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#2F1F13] hover:bg-[#B5532F] text-white text-xs uppercase tracking-wider font-semibold transition-colors shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#2F1F13] hover:bg-[#B5532F] text-white text-xs uppercase tracking-wider font-semibold transition-colors shadow-2xs shrink-0"
               >
                 <span>Inspect on Homepage</span>
                 <ArrowRight size={13} />
@@ -593,6 +823,91 @@ export function AdminMaterialStudio() {
             </div>
 
           </div>
+
+          {/* LIVE SPECIFICATION SHEET PREVIEW CARD */}
+          <div className="bg-[#16110D] text-[#FAF7F2] rounded-3xl p-5 sm:p-6 border border-[#382B21] shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#C98A4B] font-bold">
+                Live Specification Card Preview
+              </span>
+              <span className="text-[9px] font-mono text-white/40 uppercase">
+                Synchronized
+              </span>
+            </div>
+
+            {/* Spec Card Header */}
+            <div className="space-y-1">
+              <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.2em] text-[#C98A4B] font-semibold block">
+                {config.eyebrow || 'AUROVILLE SPECIFICATION SHEET'}
+              </span>
+              <h4 className="font-heading text-lg sm:text-xl text-white font-normal tracking-tight">
+                {config.materialTitle || 'Compressed Stabilized Earth Block (CSEB)'}
+              </h4>
+              <p className="text-[11px] text-white/60 font-light leading-relaxed">
+                {config.materialSubtitle || 'High Thermal Mass Natural Masonry · Formulated & pressed in our Kottakarai yard.'}
+              </p>
+            </div>
+
+            {/* Spec Rows */}
+            <div className="space-y-0 divide-y divide-white/10 pt-1">
+              {/* Density */}
+              <div className="py-2.5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#C98A4B]/80 font-bold">
+                  {config.densityLabel || 'DENSITY'}
+                </span>
+                <span className="text-xs sm:text-sm font-body text-white font-medium">
+                  {config.densityValue || '1,850 – 2,000 kg/m³'}
+                </span>
+              </div>
+
+              {/* Embodied Carbon */}
+              <div className="py-2.5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#C98A4B]/80 font-bold">
+                  {config.embodiedCarbonLabel || 'EMBODIED CARBON'}
+                </span>
+                <span className="text-xs sm:text-sm font-body text-white font-medium">
+                  {config.embodiedCarbonValue || '80% lower than fired brick'}
+                </span>
+              </div>
+
+              {/* Thermal Lag */}
+              <div className="py-2.5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#C98A4B]/80 font-bold">
+                  {config.thermalLagLabel || 'THERMAL LAG'}
+                </span>
+                <span className="text-xs sm:text-sm font-body text-white font-medium">
+                  {config.thermalLagValue || '8 – 10 hours passive regulation'}
+                </span>
+              </div>
+
+              {/* Lifespan */}
+              <div className="py-2.5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#C98A4B]/80 font-bold">
+                  {config.lifespanLabel || 'LIFESPAN'}
+                </span>
+                <span className="text-xs sm:text-sm font-body text-white font-medium">
+                  {config.lifespanValue || '100+ years durability'}
+                </span>
+              </div>
+
+              {/* Composition */}
+              <div className="py-2.5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#C98A4B]/80 font-bold">
+                  {config.compositionLabel || 'COMPOSITION'}
+                </span>
+                <span className="text-[11px] font-body text-white/80 max-w-xs sm:text-right">
+                  {config.compositionValue || 'Local red soil (75%), sand (18%), lime/cement stabilizer (7%)'}
+                </span>
+              </div>
+            </div>
+
+            {/* Footer Strip */}
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-white/50">
+              <span>{config.footerLeft || 'Eco-Certified • Zero Toxic Glues'}</span>
+              <span>{config.footerRight || 'AuroYali Standard'}</span>
+            </div>
+          </div>
+
         </div>
 
       </div>

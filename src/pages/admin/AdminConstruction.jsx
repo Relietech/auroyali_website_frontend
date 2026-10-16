@@ -811,27 +811,7 @@ export function AdminConstruction() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-[#E5D7C5]/70">
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => handleMoveCapItem(idx, -1)}
-                            disabled={idx === 0}
-                            className="p-1 rounded text-[#6B5E55] hover:text-[#2F1F13] disabled:opacity-30 cursor-pointer"
-                            title="Move up"
-                          >
-                            <ChevronUp size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleMoveCapItem(idx, 1)}
-                            disabled={idx === capabilitiesList.length - 1}
-                            className="p-1 rounded text-[#6B5E55] hover:text-[#2F1F13] disabled:opacity-30 cursor-pointer"
-                            title="Move down"
-                          >
-                            <ChevronDown size={14} />
-                          </button>
-                        </div>
+                      <div className="flex items-center justify-end pt-2 border-t border-[#E5D7C5]/70">
 
                         <div className="flex items-center gap-1.5">
                           <button
@@ -900,27 +880,6 @@ export function AdminConstruction() {
                       </div>
 
                       <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => handleMoveDelItem(idx, -1)}
-                            disabled={idx === 0}
-                            className="p-1 rounded text-[#6B5E55] hover:text-[#2F1F13] disabled:opacity-30 cursor-pointer"
-                            title="Move up"
-                          >
-                            <ChevronUp size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleMoveDelItem(idx, 1)}
-                            disabled={idx === deliverablesList.length - 1}
-                            className="p-1 rounded text-[#6B5E55] hover:text-[#2F1F13] disabled:opacity-30 cursor-pointer"
-                            title="Move down"
-                          >
-                            <ChevronDown size={14} />
-                          </button>
-                        </div>
-
                         <button
                           type="button"
                           onClick={() => handleOpenDelModal('edit', idx)}

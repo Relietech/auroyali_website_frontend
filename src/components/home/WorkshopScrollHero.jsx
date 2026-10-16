@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../common/Button';
+import { getStoredOfferedWorkshops, subscribeToWorkshops } from '../../services/workshopStore';
+import { workshopsData } from '../../data/workshops';
 import './WorkshopScrollHero.css';
 
 /**
@@ -20,7 +22,7 @@ export const DEFAULT_WORKSHOP_DATA = {
     { label: 'Class Size', value: '18 Seats Max' },
   ],
   badge: 'Certification Included',
-  primaryCta: { label: 'Register for workshop', href: '/workshops/bamboo' },
+  primaryCta: { label: 'Register for workshop', href: '/workshops' },
   secondaryCta: { label: 'See all courses', href: '/workshops' },
   image:
     'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=1600&q=80',
@@ -48,8 +50,55 @@ function easeInOutCubic(x) {
   return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 }
 
-export default function WorkshopScrollHero({ data = DEFAULT_WORKSHOP_DATA }) {
-  const workshop = { ...DEFAULT_WORKSHOP_DATA, ...data };
+export default function WorkshopScrollHero({ data = null }) {
+  const [offeredWorkshops, setOfferedWorkshops] = useState(() => getStoredOfferedWorkshops());
+
+  // Listen to live reordering/updates from the Admin Workshop Console
+  useEffect(() => {
+    const unsub = subscribeToWorkshops((updated) => {
+      setOfferedWorkshops(updated);
+    });
+    return () => unsub();
+  }, []);
+
+  // Dynamically resolve Workshop #1 from the Admin catalog
+  const firstWorkshop = offeredWorkshops && offeredWorkshops.length > 0 ? offeredWorkshops[0] : null;
+  const matchedDetail = firstWorkshop ? workshopsData.find(w => w.id === firstWorkshop.id) : null;
+
+  const dynamicWorkshopData = firstWorkshop ? {
+    eyebrow: [
+      'Auroville Green Practices',
+      firstWorkshop.tag || matchedDetail?.categoryLabel || 'Workshop #01'
+    ],
+    title: matchedDetail?.title || firstWorkshop.title || DEFAULT_WORKSHOP_DATA.title,
+    description: firstWorkshop.desc || matchedDetail?.description || DEFAULT_WORKSHOP_DATA.description,
+    facts: [
+      {
+        label: 'Duration',
+        value: matchedDetail?.duration || '4 Days Practical Workshop'
+      },
+      {
+        label: 'Next Dates',
+        value: matchedDetail?.dates || 'Upcoming Cohort'
+      },
+      {
+        label: 'Class Size',
+        value: matchedDetail?.totalSeats ? `${matchedDetail.totalSeats} Seats Max` : '15 Seats Max'
+      },
+    ],
+    badge: 'Certification & Kit Included',
+    primaryCta: {
+      label: 'Register for workshop',
+      href: `/workshops?enroll=${firstWorkshop.id}`
+    },
+    secondaryCta: {
+      label: 'See all courses',
+      href: '/workshops'
+    },
+    image: firstWorkshop.image || matchedDetail?.coverImage || DEFAULT_WORKSHOP_DATA.image,
+  } : DEFAULT_WORKSHOP_DATA;
+
+  const workshop = data || dynamicWorkshopData;
 
   const wrapperRef = useRef(null);
   const stageRef = useRef(null);

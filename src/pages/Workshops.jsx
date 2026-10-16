@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Ruler, HardHat, GraduationCap, Users, ArrowUpRight, ArrowRight, Mail, CheckCircle2, Sparkles, ChevronLeft, ChevronRight, ChevronDown, X, Maximize2 } from 'lucide-react';
 import { 
@@ -271,6 +272,19 @@ export function Workshops() {
       unsubGallery();
     };
   }, []);
+
+  // Auto-open enroll modal if ?enroll=<id> is present in URL
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const enrollId = searchParams.get('enroll');
+    if (enrollId) {
+      const matched = workshopsData.find(w => w.id === enrollId) || offeredWorkshops.find(w => w.id === enrollId);
+      if (matched) {
+        setSelectedWorkshop(matched);
+        setIsModalOpen(true);
+      }
+    }
+  }, [searchParams, offeredWorkshops]);
 
   const filteredGallery = activeGalleryCat === 'all'
     ? galleryItems

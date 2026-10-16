@@ -134,11 +134,30 @@ export function subscribeToTeam(callback) {
 
 /**
  * Add or Update a team member in a specified section
- * @param {string} sectionKey - 'management' | 'administration' | 'siteEngineers' | 'artisans' | 'caretakers'
+ * @param {string} sectionKey - 'management' | 'administration' | 'siteEngineers' | 'artisans' | 'csebProduction' | 'caretakers'
  * @param {object} memberData - { id?, name, role, trade, image, height? }
  */
 export function saveTeamMember(sectionKey, memberData) {
   const data = getStoredTeamData();
+
+  if (sectionKey === 'csebProduction') {
+    const updated = updateCsebProduction({
+      name: memberData.name?.trim() || 'Kumar and Team',
+      role: memberData.role?.trim() || 'On-Site Hydraulic Block Pressing',
+      image: memberData.image || '',
+    });
+    return {
+      id: 'cseb-production-collective',
+      name: updated.name,
+      role: updated.role,
+      trade: 'On-site hydraulic block pressing & precision masonry production unit',
+      image: updated.image,
+      sectionKey: 'csebProduction',
+      sectionLabel: 'CSEB Production Team',
+      isCollective: true,
+    };
+  }
+
   const section = data[sectionKey];
 
   if (!section || !Array.isArray(section.members)) {
@@ -184,6 +203,15 @@ export function saveTeamMember(sectionKey, memberData) {
  */
 export function deleteTeamMember(sectionKey, memberId) {
   const data = getStoredTeamData();
+
+  if (sectionKey === 'csebProduction') {
+    // Reset CSEB section to default
+    const defaults = getDefaultTeamData();
+    data.csebProduction = { ...defaults.csebProduction };
+    persistTeamData(data);
+    return true;
+  }
+
   const section = data[sectionKey];
 
   if (!section || !Array.isArray(section.members)) return false;
