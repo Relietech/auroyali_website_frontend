@@ -47,8 +47,8 @@
 /* White Panel Shell and Backdrop Card */
 .wsh-panel-shell {
   width: 100%;
-  max-width: 1540px;
-  padding: 0 40px;
+  max-width: 1280px;
+  padding: 0 24px;
   box-sizing: border-box;
   z-index: 1;
 }
@@ -437,7 +437,7 @@
 }
 
 .wsh-intro-inner {
-  max-width: 1440px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 

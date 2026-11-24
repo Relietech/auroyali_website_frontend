@@ -69,7 +69,7 @@ function LoomThreads() {
           strokeWidth="1"
           initial={{ pathLength: 0 }}
           whileInView={{ pathLength: 1 }}
-          viewport={{ once: true }}
+          viewport={{ once: false }}
           transition={{ duration: 1.6, delay: i * 0.08, ease: "easeInOut" }}
         />
       ))}
@@ -85,7 +85,7 @@ function LoomThreads() {
           strokeWidth="1"
           initial={{ pathLength: 0 }}
           whileInView={{ pathLength: 1 }}
-          viewport={{ once: true }}
+          viewport={{ once: false }}
           transition={{ duration: 1.8, delay: 0.4 + i * 0.05, ease: "easeInOut" }}
         />
       ))}
@@ -108,7 +108,7 @@ export function Footer() {
           variants={fadeUp}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={{ once: false, amount: 0.3 }}
           className="border-b border-earth-300/20 pb-8"
         >
           <h2 className="max-w-3xl font-heading text-3xl font-semibold leading-tight md:text-5xl">
@@ -118,7 +118,7 @@ export function Footer() {
 
         {/* Columns */}
         <div className="grid gap-10 py-10 md:grid-cols-2 lg:grid-cols-4">
-          <motion.div variants={fadeUp} custom={0} initial="hidden" whileInView="show" viewport={{ once: true }}>
+          <motion.div variants={fadeUp} custom={0} initial="hidden" whileInView="show" viewport={{ once: false }}>
             <h3 className="font-heading text-3xl">AuroYali</h3>
             <p className="mt-4 font-body text-sm font-light leading-relaxed text-earth-100/70">
               A unit under Auroville Universal Town. We specialise in natural
@@ -143,7 +143,7 @@ export function Footer() {
 
           {/* Explore & Services: 2-column grid on mobile, individual grid cells on tablet/desktop */}
           <div className="grid grid-cols-2 gap-6 sm:gap-10 md:contents">
-            <motion.nav variants={fadeUp} custom={1} initial="hidden" whileInView="show" viewport={{ once: true }} aria-label="Explore">
+            <motion.nav variants={fadeUp} custom={1} initial="hidden" whileInView="show" viewport={{ once: false }} aria-label="Explore">
               <h4 className="font-body text-xs uppercase tracking-[0.25em] text-earth-300">Explore</h4>
               <ul className="mt-5 space-y-3 font-body text-sm font-light">
                 {explore.map((l) => (
@@ -156,7 +156,7 @@ export function Footer() {
               </ul>
             </motion.nav>
 
-            <motion.nav variants={fadeUp} custom={2} initial="hidden" whileInView="show" viewport={{ once: true }} aria-label="Services">
+            <motion.nav variants={fadeUp} custom={2} initial="hidden" whileInView="show" viewport={{ once: false }} aria-label="Services">
               <h4 className="font-body text-xs uppercase tracking-[0.25em] text-earth-300">Services</h4>
               <ul className="mt-5 space-y-3 font-body text-sm font-light">
                 {services.map((l) => (
@@ -170,7 +170,7 @@ export function Footer() {
             </motion.nav>
           </div>
 
-          <motion.div variants={fadeUp} custom={3} initial="hidden" whileInView="show" viewport={{ once: true }}>
+          <motion.div variants={fadeUp} custom={3} initial="hidden" whileInView="show" viewport={{ once: false }}>
             <h4 className="font-body text-xs uppercase tracking-[0.25em] text-earth-300">Visit &amp; Contact</h4>
             <ul className="mt-5 space-y-4 font-body text-sm font-light">
               <li className="flex gap-3">
@@ -202,7 +202,7 @@ export function Footer() {
         <motion.p
           initial={{ y: "40%", opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: false, amount: 0.15 }}
           transition={{ duration: 1.1, ease: "easeOut" }}
           className="bg-gradient-to-b from-earth-300/60 via-earth-300/30 to-transparent bg-clip-text text-center font-heading text-[17.5vw] font-bold uppercase leading-[0.82] tracking-tight text-transparent whitespace-nowrap select-none w-full"
           aria-hidden="true"

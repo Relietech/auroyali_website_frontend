@@ -25,12 +25,12 @@
 
 /* Large Rounded Container */
 .ms-container {
-  max-width: 1540px;
+  max-width: 1280px;
   margin: 0 auto;
   border-radius: 36px;
   border: 1px solid rgba(181, 83, 45, 0.35);
   background-color: rgba(30, 24, 20, 0.4);
-  padding: 50px;
+  padding: 40px;
   box-sizing: border-box;
 }
 
